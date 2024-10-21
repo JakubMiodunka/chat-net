@@ -1,15 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace CommonUtilities;
 
-namespace CommonUtilities;
-
+/// <summary>
+/// Set of utilities related to bitwise operations.
+/// </summary>
 public static class BitUtilities
 {
+    /// <summary>
+    /// Transforms provided collection of bytes to bitwise equivalent
+    /// collection of unsigned integers.
+    /// </summary>
+    /// <param name="data">
+    /// Collection of bytes, which shall be transformed.
+    /// </param>
+    /// <returns>
+    /// Bitwise equivalent of provided collection of bytes.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown, when at least one reference-type argument is a null reference.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown, when at least one argument will be considered as invalid.
+    /// </exception>
     public static uint[] AsUintArray(IEnumerable<byte> data)
     {
         #region Arguments validation

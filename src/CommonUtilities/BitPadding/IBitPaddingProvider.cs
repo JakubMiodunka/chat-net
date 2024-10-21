@@ -2,31 +2,31 @@
 
 
 /// <summary>
-/// Shall be implemented by all providers of bit padding.
+/// Shall be implemented by all classes, which implements a bit padding.
 /// </summary>
 public interface IBitPaddingProvider
 {
     int DataBlockSize { get; }
 
     /// <summary>
-    /// Adds padding to the given data set to make its length a multiple of the block size.
+    /// Adds bit padding to the given data set to make its length a multiple of the block size.
     /// </summary>
     /// <param name="data">
-    /// Data set, which shall be padded.
+    /// Data set, to which bit padding shall be added.
     /// </param>
     /// <returns>
-    /// Set of padded data, corresponding to provided data set.
+    /// Provided data set, with added bit padding.
     /// </returns>
-    byte[] AddPadding(IEnumerable<byte> data);
+    byte[] AddBitPadding(IEnumerable<byte> data);
 
     /// <summary>
     /// Removes padding from provided data set.
     /// </summary>
     /// <param name="data">
-    /// Data set, from which padding shall be removed.
+    /// Set of data, from which bit padding shall be removed.
     /// </param>
     /// <returns>
-    ///  Set of unpadded data, corresponding to provided data set.
+    /// Provided data set, with removed bit padding.
     /// </returns>
-    byte[] RemovePadding(IEnumerable<byte> data);
+    byte[] RemoveBitPadding(IEnumerable<byte> data);
 }

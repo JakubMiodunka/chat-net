@@ -152,7 +152,7 @@ public sealed class TeaCipher : ICipher
         }
         #endregion
 
-        byte[] paddedData = _bitPaddingProvider.AddPadding(data);
+        byte[] paddedData = _bitPaddingProvider.AddBitPadding(data);
 
         byte[] encryptedData = paddedData
             .Chunk(DataBlockSize)
@@ -247,7 +247,7 @@ public sealed class TeaCipher : ICipher
             .SelectMany(EncryptDataBlock)
             .ToArray();
 
-        byte[] unpaddedData = _bitPaddingProvider.RemovePadding(decryptedData);
+        byte[] unpaddedData = _bitPaddingProvider.RemoveBitPadding(decryptedData);
 
         return unpaddedData;
     }
