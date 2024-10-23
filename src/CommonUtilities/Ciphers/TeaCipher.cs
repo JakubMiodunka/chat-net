@@ -60,10 +60,10 @@ public sealed class TeaCipher : ICipher
             throw new ArgumentNullException(argumentName, ErrorMessage);
         }
 
-        if (bitPaddingProvider.DataBlockSize != DataBlockSize)
+        if (bitPaddingProvider.SizeOfDataBlock != DataBlockSize)
         {
             string argumentName = nameof(bitPaddingProvider);
-            string errorMessage = $"Invalid size of data block set to bit padding provider: {bitPaddingProvider.DataBlockSize}";
+            string errorMessage = $"Invalid size of data block set to bit padding provider: {bitPaddingProvider.SizeOfDataBlock}";
             throw new ArgumentException(errorMessage, argumentName);
         }
         #endregion
@@ -99,7 +99,7 @@ public sealed class TeaCipher : ICipher
             throw new ArgumentNullException(argumentName, ErrorMessage);
         }
 
-        if (dataBlock.Count() == DataBlockSize)
+        if (dataBlock.Count() != DataBlockSize)
         {
             string argumentName = nameof(dataBlock);
             string errorMessage = $"Invalid size of provided data block: {dataBlock.Count()}";
@@ -118,8 +118,8 @@ public sealed class TeaCipher : ICipher
         {
             sum += Delta;
 
-            blockComponents[0] += (blockComponents[1] << 4) + _keyComponents[0] ^ blockComponents[1] + sum ^ (blockComponents[1] >> 5) + _keyComponents[1];
-            blockComponents[1] += (blockComponents[0] << 4) + _keyComponents[2] ^ blockComponents[0] + sum ^ (blockComponents[0] >> 5) + _keyComponents[3];
+            blockComponents[0] += ((blockComponents[1] << 4) + _keyComponents[0]) ^ (blockComponents[1] + sum) ^ ((blockComponents[1] >> 5) + _keyComponents[1]);
+            blockComponents[1] += ((blockComponents[0] << 4) + _keyComponents[2]) ^ (blockComponents[0] + sum) ^ ((blockComponents[0] >> 5) + _keyComponents[3]);
         }
 
         byte[] encryptedBlock = blockComponents
@@ -189,7 +189,7 @@ public sealed class TeaCipher : ICipher
             throw new ArgumentNullException(argumentName, ErrorMessage);
         }
 
-        if (dataBlock.Count() == DataBlockSize)
+        if (dataBlock.Count() != DataBlockSize)
         {
             string argumentName = nameof(dataBlock);
             string errorMessage = $"Invalid size of provided data block: {dataBlock.Count()}";
@@ -206,8 +206,8 @@ public sealed class TeaCipher : ICipher
 
         while (0 < remainingCycles--)
         {
-            blockComponents[1] -= (blockComponents[0] << 4) + _keyComponents[2] ^ blockComponents[0] + sum ^ (blockComponents[0] >> 5) + _keyComponents[3];
-            blockComponents[0] -= (blockComponents[1] << 4) + _keyComponents[0] ^ blockComponents[1] + sum ^ (blockComponents[1] >> 5) + _keyComponents[1];
+            blockComponents[1] -= ((blockComponents[0] << 4) + _keyComponents[2]) ^ (blockComponents[0] + sum) ^ ((blockComponents[0] >> 5) + _keyComponents[3]);
+            blockComponents[0] -= ((blockComponents[1] << 4) + _keyComponents[0]) ^ (blockComponents[1] + sum) ^ ((blockComponents[1] >> 5) + _keyComponents[1]);
 
             sum -= Delta;
         }
@@ -244,7 +244,7 @@ public sealed class TeaCipher : ICipher
 
         byte[] decryptedData = data
             .Chunk(DataBlockSize)
-            .SelectMany(EncryptDataBlock)
+            .SelectMany(DecryptDataBlock)
             .ToArray();
 
         byte[] unpaddedData = _bitPaddingProvider.RemoveBitPadding(decryptedData);

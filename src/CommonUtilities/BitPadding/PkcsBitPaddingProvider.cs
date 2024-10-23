@@ -9,42 +9,42 @@ namespace CommonUtilities.BitPadding;
 /// Bit padding provider utilizing PKCS algorithm.
 /// </summary>
 /// <seealso href="https://www.ibm.com/docs/en/zos/2.4.0?topic=rules-pkcs-padding-method"/>
-public sealed class PkcsPaddingProvider : IBitPaddingProvider
+public sealed class PkcsBitPaddingProvider : IBitPaddingProvider
 {
     #region Properties
-    public int DataBlockSize { get; init; }
+    public int SizeOfDataBlock { get; init; }
     #endregion
 
     #region Instantiation
     /// <summary>
     /// Creates a new provider of bit padding.
     /// </summary>
-    /// <param name="dataBlockSize">
+    /// <param name="sizeOfDataBlock">
     /// Expected size of data block, to which provided data sets shall be padded.
     /// Shall range between 2 and 256.
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown, when value of at least one argument will be considered as invalid.
     /// </exception>
-    public PkcsPaddingProvider(int dataBlockSize)
+    public PkcsBitPaddingProvider(int sizeOfDataBlock)
     {
         #region Arguments validation
-        if (dataBlockSize < 2)
+        if (sizeOfDataBlock < 2)
         {
-            string argumentName = nameof(dataBlockSize);
-            string errorMessage = $"Specified data block size too small: {dataBlockSize}";
-            throw new ArgumentOutOfRangeException(argumentName, dataBlockSize, errorMessage);
+            string argumentName = nameof(sizeOfDataBlock);
+            string errorMessage = $"Specified size of data block too small: {sizeOfDataBlock}";
+            throw new ArgumentOutOfRangeException(argumentName, sizeOfDataBlock, errorMessage);
         }
 
-        if ((byte.MaxValue + 1) < dataBlockSize)
+        if ((byte.MaxValue + 1) < sizeOfDataBlock)
         {
-            string argumentName = nameof(dataBlockSize);
-            string errorMessage = $"Specified data block size too large: {dataBlockSize}";
-            throw new ArgumentOutOfRangeException(argumentName, dataBlockSize, errorMessage);
+            string argumentName = nameof(sizeOfDataBlock);
+            string errorMessage = $"Specified size of data block too large: {sizeOfDataBlock}";
+            throw new ArgumentOutOfRangeException(argumentName, sizeOfDataBlock, errorMessage);
         }
         #endregion
 
-        DataBlockSize = dataBlockSize;
+        SizeOfDataBlock = sizeOfDataBlock;
     }
     #endregion
 
@@ -74,7 +74,7 @@ public sealed class PkcsPaddingProvider : IBitPaddingProvider
             throw new ArgumentNullException(argumentName, ErrorMessage);
         }
 
-        if ((DataBlockSize - 1) < dataBlock.Count())
+        if ((SizeOfDataBlock - 1) < dataBlock.Count())
         {
             string argumentName = nameof(dataBlock);
             string errorMessage = $"Invalid size of provided data block: {dataBlock.Count()}";
@@ -82,7 +82,7 @@ public sealed class PkcsPaddingProvider : IBitPaddingProvider
         }
         #endregion
 
-        byte paddingLength = Convert.ToByte(DataBlockSize - dataBlock.Count());
+        byte paddingLength = Convert.ToByte(SizeOfDataBlock - dataBlock.Count());
         byte paddingByte = paddingLength;
 
         IEnumerable<byte> padding = Enumerable.Repeat(paddingByte, paddingLength);
@@ -102,6 +102,9 @@ public sealed class PkcsPaddingProvider : IBitPaddingProvider
     /// <exception cref="ArgumentNullException">
     /// Thrown, when at least one reference-type argument is a null reference.
     /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown, when at least one argument will be considered as invalid.
+    /// </exception>
     public byte[] AddBitPadding(IEnumerable<byte> data)
     {
         #region Arguments validation
@@ -114,7 +117,7 @@ public sealed class PkcsPaddingProvider : IBitPaddingProvider
         #endregion
 
         byte[] paddedData = data
-            .Chunk(DataBlockSize - 1)
+            .Chunk(SizeOfDataBlock - 1)
             .SelectMany(AddBitPaddingToDataBlock)
             .ToArray();
 
@@ -148,7 +151,7 @@ public sealed class PkcsPaddingProvider : IBitPaddingProvider
             throw new ArgumentNullException(argumentName, ErrorMessage);
         }
 
-        if (dataBlock.Count() == DataBlockSize)
+        if (dataBlock.Count() != SizeOfDataBlock)
         {
             string argumentName = nameof(dataBlock);
             string errorMessage = $"Invalid size of provided data block: {dataBlock.Count()}";
@@ -189,7 +192,7 @@ public sealed class PkcsPaddingProvider : IBitPaddingProvider
         #endregion
 
         byte[] unpaddedData = data
-            .Chunk(DataBlockSize)
+            .Chunk(SizeOfDataBlock)
             .SelectMany(RemoveBitPaddingFromDataBlock)
             .ToArray();
 

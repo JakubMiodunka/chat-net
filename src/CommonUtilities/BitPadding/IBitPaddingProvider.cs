@@ -6,7 +6,7 @@
 /// </summary>
 public interface IBitPaddingProvider
 {
-    int DataBlockSize { get; }
+    int SizeOfDataBlock { get; }
 
     /// <summary>
     /// Adds bit padding to the given data set to make its length a multiple of the block size.
