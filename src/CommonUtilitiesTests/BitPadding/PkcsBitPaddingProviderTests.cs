@@ -18,7 +18,11 @@ namespace CommonUtilitiesTests.BitPadding
         #endregion
 
         #region Test parameters
-        private static readonly int[] s_validSizesOfDataBlock = [2, 3, 4, 9, 8, 16, 27, 32, 64, 81, 128, 243, 256];
+        // Values chosen using 3-value boundary analysis.
+        private static readonly int[] s_validSizesOfDataBlock = [2, 3, 255, 256];
+        private static readonly int[] s_invalidSizesOfDataBlock = [1, 257];
+
+        // Any size greater or equal to zero is valid.
         private static readonly int[] s_validSizesOfInputDataSet = [0, 2, 3, 4, 9, 8, 16, 27, 32, 64, 81, 128, 243, 256];
         #endregion
 
@@ -34,7 +38,7 @@ namespace CommonUtilitiesTests.BitPadding
 
         [Test]
         public void InstantiationImpossibleUsingInvalidBlockSize(
-            [Values(0, 1, 257)] int invalidDataBlockSize)
+            [ValueSource(nameof(s_invalidSizesOfDataBlock))] int invalidDataBlockSize)
         {
             TestDelegate actionUnderTest = () => new PkcsBitPaddingProvider(invalidDataBlockSize);
 

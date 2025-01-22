@@ -52,7 +52,7 @@ public sealed class TeaCipherTests
 
     [Test]
     public void InstantiationImpossibleUsingInvalidEncryptionKey(
-        [Values(0, 15, 17)] int invalidSizeOfEncryptionKey)
+        [Values(15, 17)] int invalidSizeOfEncryptionKey)
     {
         var encryptionKey = new byte[invalidSizeOfEncryptionKey];
         s_randomNumberGenerator.NextBytes(encryptionKey);
@@ -77,7 +77,7 @@ public sealed class TeaCipherTests
 
     [Test]
     public void InstantiationImpossibleUsingMisconfiguredBitPaddingProvider(
-        [Values(-1, 0, 1, 7, 9)] int invalidSizeOfDataBlock)
+        [Values(7, 9)] int invalidSizeOfDataBlock)
     {
         var encryptionKey = new byte[ValidSizeOfEncryptionKey];
         s_randomNumberGenerator.NextBytes(encryptionKey);
@@ -124,12 +124,12 @@ public sealed class TeaCipherTests
 
     [Test]
     public void EncryptionIsTransparent(
-        [Values(0, 2, 3, 4, 8, 9, 16, 27)] int dataBlocksToProcess)
+        [Values(0, 2, 3, 4, 8, 9, 16, 27)] int numberOfDataBlocksToProcess)
     {
         var encryptionKey = new byte[ValidSizeOfEncryptionKey];
         s_randomNumberGenerator.NextBytes(encryptionKey);
 
-        var inputDataSet = new byte[ValidSizeOfDataBlock * dataBlocksToProcess];
+        var inputDataSet = new byte[ValidSizeOfDataBlock * numberOfDataBlocksToProcess];
         s_randomNumberGenerator.NextBytes(inputDataSet);
 
         Mock<IBitPaddingProvider> bitPaddingProviderStub = CreateTransparentBitPaddingProviderFake();
