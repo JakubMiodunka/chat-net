@@ -1,5 +1,6 @@
 ﻿// Ignore Spelling: Misconfigured
 
+using CommonUtilities.BitPadding;
 using CommonUtilities.Ciphers;
 using CommonUtilities.Padding;
 using Moq;
@@ -7,6 +8,8 @@ using Moq;
 
 namespace CommonUtilitiesTests.Ciphers;
 
+[TestOf(typeof(TeaCipher))]
+[Author("Jakub Miodunka")]
 public sealed class TeaCipherTests
 {
     #region Constants
