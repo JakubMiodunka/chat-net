@@ -4,5 +4,9 @@ src/.vs/
 # Directories used during application build.
 src/CommonUtilities/bin/
 src/CommonUtilities/obj/
+
 src/CommonUtilitiesTests/bin/
 src/CommonUtilitiesTests/obj/
+
+src/Client/bin/
+src/Client/obj/
