@@ -10,3 +10,6 @@ src/CommonUtilitiesTests/obj/
 
 src/Client/bin/
 src/Client/obj/
+
+src/Server/bin/
+src/Server/obj/
