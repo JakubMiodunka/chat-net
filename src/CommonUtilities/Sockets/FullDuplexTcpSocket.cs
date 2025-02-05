@@ -1,39 +1,31 @@
 ﻿using CommonUtilities.Ciphers;
 using CommonUtilities.Protocols;
-using System.Net;
 using System.Net.Sockets;
 
 
-namespace Client;
+namespace CommonUtilities.Sockets;
 
+/// TODO: Figure out how to detect if connection was closed by remote resource and implement reaction to it.
 /// <summary>
-/// TCP client, capable to send and receive data in full-duplex manner.
+/// Implementation of TCP socket, capable to transfer encrypted data in full-duplex manner
+/// (to send and receive encrypted data simultaneously).
 /// </summary>
-public class TcpClient : IDisposable
+public abstract class FullDuplexTcpSocket : IDisposable
 {
-    #region Delegates
-    public delegate void ReceivedDataCallback(IEnumerable<byte> data);
-    #endregion
-
     #region Properties
-    private readonly IPEndPoint _serverEndPoint;
-    private readonly Socket _clientSocket;
+    private readonly int _receivingBufferSize;
     private readonly IProtocol _protocol;
     private readonly ICipher _cipher;
-    private readonly int _receivingBufferSize;
-    private readonly HashSet<ReceivedDataCallback> _receivedDataCallbacks;
-    private bool _shallListenFroData;
+    
+    protected abstract Socket Socket { get; }   // Shall be connected to remote resource by derivative class before transferring data.
     #endregion
 
     #region Instantiation
     /// <summary>
-    /// Creates new instance of TCP client.
+    /// Initializes functionalities of full-duplex TCP socket.
     /// </summary>
-    /// <param name="serverEndPoint">
-    /// Server end point.
-    /// </param>
     /// <param name="receivingBufferSize">
-    /// Size of receiving buffer. Expressed in bytes.
+    /// Size of a buffer, used for buffering incoming data.
     /// </param>
     /// <param name="protocol">
     /// Session layer protocol, which shall be used during communication.
@@ -41,22 +33,15 @@ public class TcpClient : IDisposable
     /// <param name="cipher">
     /// Cipher, which shall be used during communication to encrypt and decrypt data. 
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown, when at least one reference-type argument is a null reference.
-    /// </exception>
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown, when value of at least one argument will be considered as invalid.
     /// </exception>
-    public TcpClient(IPEndPoint serverEndPoint, int receivingBufferSize, IProtocol protocol, ICipher cipher)
+    /// <exception cref="ArgumentNullException">
+    /// Thrown, when at least one reference-type argument is a null reference.
+    /// </exception>
+    protected FullDuplexTcpSocket(int receivingBufferSize, IProtocol protocol, ICipher cipher)
     {
         #region Arguments validation
-        if (serverEndPoint is null)
-        {
-            string argumentName = nameof(serverEndPoint);
-            const string ErrorMessage = "Provided IP end point is a null reference:";
-            throw new ArgumentNullException(argumentName, ErrorMessage);
-        }
-
         if (receivingBufferSize < 1)
         {
             string argumentName = nameof(receivingBufferSize);
@@ -79,59 +64,49 @@ public class TcpClient : IDisposable
         }
         #endregion
 
-        _serverEndPoint = serverEndPoint;
-        _clientSocket = new Socket(serverEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+        _receivingBufferSize = receivingBufferSize;
         _protocol = protocol;
         _cipher = cipher;
-        _receivingBufferSize = receivingBufferSize;
-        _receivedDataCallbacks = new HashSet<ReceivedDataCallback>();
-        _shallListenFroData = false;
     }
     #endregion
 
     #region Interactions
     /// <summary>
-    /// Adds provided delegate to a pool of callbacks, which are invoked every time,
-    /// when TCP client receives new data from a server.
+    /// Processes received patches of data.
     /// </summary>
     /// <remarks>
-    /// Callbacks pool can store only one reference to particular callback.
+    /// Method shall be implemented by derivative class according to specific needs.
     /// </remarks>
-    /// <param name="newCallback">
-    /// Callback which shall be invoked every time, when TCP client received new data from server.
+    /// <param name="receivedData">
+    /// New patch of data, required to be processed further.
     /// </param>
-    public void AddReceivedDataCallback(ReceivedDataCallback newCallback)
-    {
-        _receivedDataCallbacks.Add(newCallback);
-    }
+    protected abstract void ProcessReceivedData(IEnumerable<byte> receivedData);
 
     /// <summary>
-    /// Connects TCP client to server.
-    /// </summary>
-    /// <remarks>
-    /// Server end point shall be specified during instance initialization.
-    /// </remarks>
-    public void ConnectToServer()
-    {
-        _clientSocket.Connect(_serverEndPoint);
-    }
-
-    /// <summary>
-    /// Triggers an infinite process of listening for data incoming from server.
+    /// Triggers continues process of listening for new patches of data on socket.
     /// </summary>
     /// <returns>
     /// Task related to pending data transfer.
     /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown, when socket is not connected to remote resource.
+    /// </exception>
     public async Task StartListeningForData()
     {
+        #region Arguments validation
+        if (!Socket.Connected)
+        {
+            const string ErrorMessage = "Socket not connected to remote resource:";
+            throw new InvalidOperationException(ErrorMessage);
+        }
+        #endregion
+
         var receivedData = new List<byte>();
         var receivingBuffer = new byte[_receivingBufferSize];
 
-        _shallListenFroData = true;
-
-        while (_shallListenFroData)
+        while (Socket.Connected)
         {
-            int sizeOfReceivedDataChunk = await _clientSocket.ReceiveAsync(receivingBuffer);
+            int sizeOfReceivedDataChunk = await Socket.ReceiveAsync(receivingBuffer);
             byte[] receivedDataChunk = receivingBuffer.Take(sizeOfReceivedDataChunk).ToArray();
             receivedData.AddRange(receivedDataChunk);
 
@@ -150,22 +125,24 @@ public class TcpClient : IDisposable
 
             byte[] decryptedPayload = _cipher.Decrypt(encryptedPayload);
 
-            _receivedDataCallbacks.ToList()
-                .ForEach(callBack => callBack.Invoke(decryptedPayload));
+            ProcessReceivedData(decryptedPayload);
         }
     }
 
     /// <summary>
-    /// Sends provided data to server.
+    /// Sends provided data through the socket.
     /// </summary>
     /// <param name="data">
-    /// Data, which shall be sent to the server.
+    /// Patch of data, which shall be sent.
     /// </param>
     /// <returns>
     /// Task related to pending data transfer.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown, when at least one reference-type argument is a null reference.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown, when socket is not connected to remote resource.
     /// </exception>
     public async Task SentData(IEnumerable<byte> data)
     {
@@ -176,21 +153,33 @@ public class TcpClient : IDisposable
             const string ErrorMessage = "Provided data is a null reference:";
             throw new ArgumentNullException(argumentName, ErrorMessage);
         }
+
+        if (!Socket.Connected)
+        {
+            const string ErrorMessage = "Socket not connected to remote resource:";
+            throw new InvalidOperationException(ErrorMessage);
+        }
         #endregion
 
         byte[] encryptedData = _cipher.Encrypt(data);
         byte[] packet = _protocol.PreparePacket(payload: encryptedData);
 
-        await _clientSocket.SendAsync(packet);
+        await Socket.SendAsync(packet);
     }
 
     /// <summary>
-    /// Shuts down both sending and receiving operations of TCP client.
+    /// Suppresses currently pending sending and receiving operations on socket
+    /// and dispose the socket itself.
     /// </summary>
     public void Dispose()
     {
-        _shallListenFroData = false;
-        _clientSocket.Shutdown(SocketShutdown.Both);
+        if (Socket.Connected)
+        {
+            // For connection-oriented protocols (such as TCP),
+            // it is recommended to call Socket.Shutdown before disposing the socket (calling socket.Close()).
+            Socket.Shutdown(SocketShutdown.Both);
+            Socket.Close();                         // Calls Socket.Dispose() internally.
+        }
     }
     #endregion
 }

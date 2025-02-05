@@ -15,10 +15,10 @@ var bitPaddingProvider = new PkcsBitPaddingProvider(TeaCipher.DataBlockSize);
 var cipher = new TeaCipher(encryptionKey, bitPaddingProvider);
 
 // Main:
-using (var socketClient = new TcpClient(serverEndPoint, receivingBufferSize, protocol, cipher))
+using (var socketClient = new ClientTcpSocket(serverEndPoint, receivingBufferSize, protocol, cipher))
 {
+    socketClient.ReceivedDataCallback = (data) => Console.WriteLine($"\rSERVER: {Encoding.UTF8.GetString(data.ToArray())}");
     socketClient.ConnectToServer();
-    socketClient.AddReceivedDataCallback((data) => Console.WriteLine($"SERVER: {Encoding.UTF8.GetString(data.ToArray())}"));
 
     _ = socketClient.StartListeningForData();   // Listen for incoming data in background.
 
