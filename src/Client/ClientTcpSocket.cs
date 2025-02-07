@@ -20,8 +20,8 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
 
     protected override Socket Socket { get; }
 
-    public Action<IEnumerable<byte>>? DataReceivedCallback; // Shall be assigned externally to process revived data further.
-    public Action? ConnectionClosedCallback;                // Shall be assigned externally to process the event further. 
+    public event Action<IEnumerable<byte>> DataReceivedEvent; // Shall be assigned externally to process revived data further.
+    public event Action ConnectionClosedEvent;                // Shall be assigned externally to process the event further. 
     #endregion
 
     #region Instantiation
@@ -59,8 +59,6 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
         _serverEndPoint = serverEndPoint;
 
         Socket = new Socket(serverEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-        DataReceivedCallback = null;
     }
     #endregion
 
@@ -85,10 +83,7 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
         }
         #endregion
 
-        if (DataReceivedCallback is not null)
-        {
-            DataReceivedCallback.Invoke(receivedData);
-        }
+        DataReceivedEvent?.Invoke(receivedData);
     }
 
     /// <summary>
@@ -96,10 +91,7 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
     /// </summary>
     protected override void ReactOnConnectionClose()
     {
-        if (ConnectionClosedCallback is not null)
-        {
-            ConnectionClosedCallback.Invoke();
-        }
+        ConnectionClosedEvent?.Invoke();
     }
 
     /// <summary>

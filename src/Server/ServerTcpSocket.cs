@@ -27,7 +27,7 @@ public sealed class ServerTcpSocket : IDisposable
     private readonly List<TcpConnectionHandler> _connectionHandlers;
     
     public bool ShallAcceptConnections;
-    public Action<int>? ConnectionAcceptedCallback; // Shall be assigned externally to process the event further.
+    public event Action<int> ConnectionAcceptedEvent; // Shall be assigned externally to process the event further.
     #endregion
 
     #region Instantiation
@@ -92,7 +92,6 @@ public sealed class ServerTcpSocket : IDisposable
         _connectionHandlers = new List<TcpConnectionHandler>();
         
         ShallAcceptConnections = false;
-        ConnectionAcceptedCallback = null;
 
         _listeningSocket.Bind(ipEndPoint);
     }
@@ -122,17 +121,14 @@ public sealed class ServerTcpSocket : IDisposable
         #endregion
 
         var connectionHandler = new TcpConnectionHandler(connectionSocket, _receivingBufferSize, _protocol, _cipher);
-        connectionHandler.ReceivedDataCallback = (connectionId, receivedData) => Console.WriteLine($"CLIENT {connectionId}, MESSAGE: {Encoding.UTF8.GetString(receivedData.ToArray())}"); // Only for demo.
-        connectionHandler.ConnectionClosedCallback = (connectionId) => Console.WriteLine($"CLIENT {connectionId}, CLENT CLOSED CONNECTION");    // Only for demo.
+        connectionHandler.ReceivedDataEvent += (connectionId, receivedData) => Console.WriteLine($"CLIENT {connectionId}, MESSAGE: {Encoding.UTF8.GetString(receivedData.ToArray())}"); // Only for demo.
+        connectionHandler.ConnectionClosedEvent += (connectionId) => Console.WriteLine($"CLIENT {connectionId}, CLENT CLOSED CONNECTION");    // Only for demo.
 
         _connectionHandlers.Add(connectionHandler);
 
         Task.Run(() => connectionHandler.StartListeningForData());
 
-        if (ConnectionAcceptedCallback is not null)
-        {
-            ConnectionAcceptedCallback.Invoke(connectionHandler.ConnectionIdentifier);
-        }
+        ConnectionAcceptedEvent?.Invoke(connectionHandler.ConnectionIdentifier);
     }
 
     /// <summary>

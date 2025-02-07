@@ -17,8 +17,8 @@ var cipher = new TeaCipher(encryptionKey, bitPaddingProvider);
 // Main:
 using (var socketClient = new ClientTcpSocket(serverEndPoint, receivingBufferSize, protocol, cipher))
 {
-    socketClient.DataReceivedCallback = (data) => Console.WriteLine($"\rSERVER: {Encoding.UTF8.GetString(data.ToArray())}");
-    socketClient.ConnectionClosedCallback = () => Console.WriteLine($"\rSERVER CLOSED CONNECTION");
+    socketClient.DataReceivedEvent += (data) => Console.WriteLine($"\rSERVER: {Encoding.UTF8.GetString(data.ToArray())}");
+    socketClient.ConnectionClosedEvent += () => Console.WriteLine($"\rSERVER CLOSED CONNECTION");
     socketClient.ConnectToServer();
 
     _ = socketClient.StartListeningForData();   // Listen for incoming data in background.

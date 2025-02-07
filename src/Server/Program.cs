@@ -16,7 +16,7 @@ var cipher = new TeaCipher(encryptionKey, bitPaddingProvider);
 // Main:
 using (var tcpServer = new ServerTcpSocket(serverEndPoint, receivingBufferSize, protocol, cipher))
 {
-    tcpServer.ConnectionAcceptedCallback = (connectionId) => Console.WriteLine($"CLIENT {connectionId}, CONNECTION ACCEPTED");
+    tcpServer.ConnectionAcceptedEvent += (connectionId) => Console.WriteLine($"CLIENT {connectionId}, CONNECTION ACCEPTED");
     _ = tcpServer.StartAcceptingConnections();
 
     while (true)
