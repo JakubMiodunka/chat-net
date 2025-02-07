@@ -5,11 +5,16 @@ using System.Net.Sockets;
 
 namespace CommonUtilities.Sockets;
 
-/// TODO: Figure out how to detect if connection was closed by remote resource and implement reaction to it.
 /// <summary>
 /// Implementation of TCP socket, capable to transfer encrypted data in full-duplex manner
 /// (to send and receive encrypted data simultaneously).
 /// </summary>
+/// <seealso href="https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/sockets/socket-services"/>
+/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.connected?view=net-9.0"/>
+/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.receiveasync?view=net-9.0"/
+/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.sendasync?view=net-9.0"/>
+/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.shutdown?view=net-9.0"/>
+/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.close?view=net-9.0"/>
 public abstract class FullDuplexTcpSocket : IDisposable
 {
     #region Properties
@@ -83,6 +88,14 @@ public abstract class FullDuplexTcpSocket : IDisposable
     protected abstract void ProcessReceivedData(IEnumerable<byte> receivedData);
 
     /// <summary>
+    /// Reacts to situation, when remote resource will close the connection..
+    /// </summary>
+    /// <remarks>
+    /// Method shall be implemented by derivative class according to specific needs.
+    /// </remarks>
+    protected abstract void ReactOnConnectionClose();
+
+    /// <summary>
     /// Triggers continues process of listening for new patches of data on socket.
     /// </summary>
     /// <returns>
@@ -107,6 +120,16 @@ public abstract class FullDuplexTcpSocket : IDisposable
         while (Socket.Connected)
         {
             int sizeOfReceivedDataChunk = await Socket.ReceiveAsync(receivingBuffer);
+
+            // Receiving 0 bytes is an indicator,
+            // that remote resource closed its socket.
+            if (sizeOfReceivedDataChunk == 0)
+            {
+                Dispose();  // As we do not re-use the socket, it is disposed as soon as possible.
+                ReactOnConnectionClose();
+                return;
+            }
+
             byte[] receivedDataChunk = receivingBuffer.Take(sizeOfReceivedDataChunk).ToArray();
             receivedData.AddRange(receivedDataChunk);
 
@@ -173,13 +196,17 @@ public abstract class FullDuplexTcpSocket : IDisposable
     /// </summary>
     public void Dispose()
     {
+        // Value of Socket.Connected property is not depend on state of connected remote resource.
+        // Is set to 'true' during runtime of Socket.Connect method and to 'false', when socket is being disposed.
+        // Is not updated when remote resource will close/dispose its socket.
         if (Socket.Connected)
         {
             // For connection-oriented protocols (such as TCP),
-            // it is recommended to call Socket.Shutdown before disposing the socket (calling socket.Close()).
+            // it is recommended to call Socket.Shutdown on connected socket before disposing it (calling socket.Close()).
             Socket.Shutdown(SocketShutdown.Both);
-            Socket.Close();                         // Calls Socket.Dispose() internally.
         }
+
+        Socket.Close(); // Calls Socket.Dispose() internally.
     }
     #endregion
 }

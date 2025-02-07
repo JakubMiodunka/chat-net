@@ -10,10 +10,13 @@ using System.Text;
 namespace Server;
 
 /// TODO: Add mechanism of limiting actively handled connections.
-/// TODO: Add callback invoked every time when new connection will be accepted.
 /// <summary>
 /// Socket wrapper, which serves as a server in TCP client-server architecture.
 /// </summary>
+/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket?view=net-9.0"/>
+/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.bind?view=net-9.0"/>
+/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.listen?view=net-9.0"/>
+/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.acceptasync?view=net-9.0"/>
 public sealed class ServerTcpSocket : IDisposable
 {
     #region Properties
@@ -22,7 +25,9 @@ public sealed class ServerTcpSocket : IDisposable
     private readonly IProtocol _protocol;
     private readonly ICipher _cipher;
     private readonly List<TcpConnectionHandler> _connectionHandlers;
-    private bool _shallAcceptConnections;
+    
+    public bool ShallAcceptConnections;
+    public Action<int>? ConnectionAcceptedCallback; // Shall be assigned externally to process the event further.
     #endregion
 
     #region Instantiation
@@ -85,7 +90,9 @@ public sealed class ServerTcpSocket : IDisposable
         _protocol = protocol;
         _cipher = cipher;
         _connectionHandlers = new List<TcpConnectionHandler>();
-        _shallAcceptConnections = false;
+        
+        ShallAcceptConnections = false;
+        ConnectionAcceptedCallback = null;
 
         _listeningSocket.Bind(ipEndPoint);
     }
@@ -116,9 +123,16 @@ public sealed class ServerTcpSocket : IDisposable
 
         var connectionHandler = new TcpConnectionHandler(connectionSocket, _receivingBufferSize, _protocol, _cipher);
         connectionHandler.ReceivedDataCallback = (connectionId, receivedData) => Console.WriteLine($"CLIENT {connectionId}, MESSAGE: {Encoding.UTF8.GetString(receivedData.ToArray())}"); // Only for demo.
+        connectionHandler.ConnectionClosedCallback = (connectionId) => Console.WriteLine($"CLIENT {connectionId}, CLENT CLOSED CONNECTION");    // Only for demo.
+
         _connectionHandlers.Add(connectionHandler);
 
         Task.Run(() => connectionHandler.StartListeningForData());
+
+        if (ConnectionAcceptedCallback is not null)
+        {
+            ConnectionAcceptedCallback.Invoke(connectionHandler.ConnectionIdentifier);
+        }
     }
 
     /// <summary>
@@ -129,11 +143,11 @@ public sealed class ServerTcpSocket : IDisposable
     /// </returns>
     public async Task StartAcceptingConnections()
     {
-        _shallAcceptConnections = true;
+        ShallAcceptConnections = true;
         
         _listeningSocket.Listen();
 
-        while (_shallAcceptConnections)
+        while (ShallAcceptConnections)
         {
             Socket connectionSocket = await _listeningSocket.AcceptAsync();
             ProcessAcceptedConnection(connectionSocket);
@@ -145,7 +159,7 @@ public sealed class ServerTcpSocket : IDisposable
     /// </summary>
     public void Dispose()
     {
-        _shallAcceptConnections = false;
+        ShallAcceptConnections = false;
 
         _connectionHandlers.ForEach(connectionHandler => connectionHandler.Dispose());
 

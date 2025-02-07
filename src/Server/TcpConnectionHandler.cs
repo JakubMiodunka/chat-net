@@ -6,7 +6,6 @@ using System.Net.Sockets;
 
 namespace Server;
 
-/// TODO: Add callback invoked when connection will be closed.
 /// <summary>
 /// Handles connections accepted by TCP-based server.
 /// Capable to transfer encrypted data in full-duplex manner.
@@ -22,6 +21,7 @@ public sealed class TcpConnectionHandler : FullDuplexTcpSocket
 
     public readonly int ConnectionIdentifier;                       // Unique for every connection during program runtime.
     public Action<int, IEnumerable<byte>>? ReceivedDataCallback;    // Shall be assigned externally to process revived data further.
+    public Action<int>? ConnectionClosedCallback;                   // Shall be assigned externally to process the event further. 
     #endregion
 
     #region Instantiation
@@ -70,6 +70,7 @@ public sealed class TcpConnectionHandler : FullDuplexTcpSocket
 
         ConnectionIdentifier = s_nextConnectionIdentifier++;
         ReceivedDataCallback = null;
+        ConnectionClosedCallback = null;
     }
     #endregion
 
@@ -97,6 +98,17 @@ public sealed class TcpConnectionHandler : FullDuplexTcpSocket
         if (ReceivedDataCallback is not null)
         {
             ReceivedDataCallback.Invoke(ConnectionIdentifier, receivedData);
+        }
+    }
+
+    /// <summary>
+    /// Calls connection closed callback as a reaction to closing connection by the client.
+    /// </summary>
+    protected override void ReactOnConnectionClose()
+    {
+        if (ConnectionClosedCallback is not null)
+        {
+            ConnectionClosedCallback.Invoke(ConnectionIdentifier);
         }
     }
     #endregion

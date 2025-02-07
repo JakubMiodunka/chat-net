@@ -11,6 +11,8 @@ namespace Client;
 /// Socket wrapper, which serves as a client in TCP client-server architecture.
 /// Capable to transfer encrypted data in full-duplex manner.
 /// </summary>
+/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket?view=net-9.0"/>
+/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.connect?view=net-9.0"/>
 public sealed class ClientTcpSocket : FullDuplexTcpSocket
 {
     #region Properties
@@ -18,7 +20,8 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
 
     protected override Socket Socket { get; }
 
-    public Action<IEnumerable<byte>>? ReceivedDataCallback; // Shall be assigned externally to process revived data further. 
+    public Action<IEnumerable<byte>>? DataReceivedCallback; // Shall be assigned externally to process revived data further.
+    public Action? ConnectionClosedCallback;                // Shall be assigned externally to process the event further. 
     #endregion
 
     #region Instantiation
@@ -57,7 +60,7 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
 
         Socket = new Socket(serverEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-        ReceivedDataCallback = null;
+        DataReceivedCallback = null;
     }
     #endregion
 
@@ -82,9 +85,20 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
         }
         #endregion
 
-        if (ReceivedDataCallback is not null)
+        if (DataReceivedCallback is not null)
         {
-            ReceivedDataCallback.Invoke(receivedData);
+            DataReceivedCallback.Invoke(receivedData);
+        }
+    }
+
+    /// <summary>
+    /// Calls connection closed callback as a reaction to closing connection by the server.
+    /// </summary>
+    protected override void ReactOnConnectionClose()
+    {
+        if (ConnectionClosedCallback is not null)
+        {
+            ConnectionClosedCallback.Invoke();
         }
     }
 

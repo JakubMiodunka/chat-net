@@ -3,7 +3,6 @@ using CommonUtilities.Ciphers;
 using CommonUtilities.Protocols;
 using Server;
 using System.Net;
-using System.Text;
 
 
 // Configuration:
@@ -17,6 +16,7 @@ var cipher = new TeaCipher(encryptionKey, bitPaddingProvider);
 // Main:
 using (var tcpServer = new ServerTcpSocket(serverEndPoint, receivingBufferSize, protocol, cipher))
 {
+    tcpServer.ConnectionAcceptedCallback = (connectionId) => Console.WriteLine($"CLIENT {connectionId}, CONNECTION ACCEPTED");
     _ = tcpServer.StartAcceptingConnections();
 
     while (true)
