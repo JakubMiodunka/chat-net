@@ -9,7 +9,6 @@ using System.Text;
 
 namespace Server;
 
-/// TODO: Add mechanism of limiting actively handled connections.
 /// <summary>
 /// Socket wrapper, which serves as a server in TCP client-server architecture.
 /// </summary>
@@ -27,7 +26,7 @@ public sealed class ServerTcpSocket : IDisposable
     private readonly List<TcpConnectionHandler> _connectionHandlers;
     
     public bool ShallAcceptConnections;
-    public event Action<int> ConnectionAcceptedEvent; // Shall be assigned externally to process the event further.
+    public event Action<int>? ConnectionAcceptedEvent; // Shall be assigned externally to process the event further.
     #endregion
 
     #region Instantiation
@@ -121,8 +120,9 @@ public sealed class ServerTcpSocket : IDisposable
         #endregion
 
         var connectionHandler = new TcpConnectionHandler(connectionSocket, _receivingBufferSize, _protocol, _cipher);
-        connectionHandler.ReceivedDataEvent += (connectionId, receivedData) => Console.WriteLine($"CLIENT {connectionId}, MESSAGE: {Encoding.UTF8.GetString(receivedData.ToArray())}"); // Only for demo.
-        connectionHandler.ConnectionClosedEvent += (connectionId) => Console.WriteLine($"CLIENT {connectionId}, CLENT CLOSED CONNECTION");    // Only for demo.
+        connectionHandler.ReceivedDataEvent += (sender, receivedData) => Console.WriteLine($"CLIENT {sender.ConnectionIdentifier}, MESSAGE: {Encoding.UTF8.GetString(receivedData.ToArray())}"); // Only for demo.
+        connectionHandler.ConnectionClosedEvent += (sender) => Console.WriteLine($"CLIENT {sender.ConnectionIdentifier}, CLENT CLOSED CONNECTION");    // Only for demo.
+        connectionHandler.ConnectionClosedEvent += (sender) => _connectionHandlers.Remove(sender);
 
         _connectionHandlers.Add(connectionHandler);
 

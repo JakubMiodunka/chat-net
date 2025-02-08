@@ -19,9 +19,9 @@ public sealed class TcpConnectionHandler : FullDuplexTcpSocket
     #region Properties
     protected override Socket Socket { get; }
 
-    public readonly int ConnectionIdentifier;                       // Unique for every connection during program runtime.
-    public event Action<int, IEnumerable<byte>> ReceivedDataEvent;  // Shall be assigned externally to process revived data further.
-    public event Action<int> ConnectionClosedEvent;                 // Shall be assigned externally to process the event further. 
+    public readonly int ConnectionIdentifier;                                       // Unique for every connection during program runtime.
+    public event Action<TcpConnectionHandler, IEnumerable<byte>> ReceivedDataEvent; // Shall be assigned externally to process revived data further.
+    public event Action<TcpConnectionHandler> ConnectionClosedEvent;                // Shall be assigned externally to process the event further. 
     #endregion
 
     #region Instantiation
@@ -93,7 +93,7 @@ public sealed class TcpConnectionHandler : FullDuplexTcpSocket
         }
         #endregion
 
-        ReceivedDataEvent?.Invoke(ConnectionIdentifier, receivedData);
+        ReceivedDataEvent?.Invoke(this, receivedData);
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ public sealed class TcpConnectionHandler : FullDuplexTcpSocket
     /// </summary>
     protected override void ReactOnConnectionClose()
     {
-        ConnectionClosedEvent?.Invoke(ConnectionIdentifier);
+        ConnectionClosedEvent?.Invoke(this);
     }
     #endregion
 }
