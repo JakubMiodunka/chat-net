@@ -21,6 +21,16 @@ using (var tcpServer = new ServerTcpSocket(serverEndPoint, receivingBufferSize, 
 
     while (true)
     {
+        string? input = Console.ReadLine();
 
+        if (input is not null)
+        {
+            if (input == "end") // To perform graceful shutdown.
+            {
+                break;
+            }
+        }
     }
 }
+
+Console.ReadLine();

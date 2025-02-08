@@ -153,15 +153,18 @@ public sealed class ServerTcpSocket : IDisposable
     /// <summary>
     /// Suppresses accepting new connections, disposes all connection handlers along with listening socket.
     /// </summary>
+    /// <remarks>
+    /// Calling Socket.Shutdown method is not necessary here (and will cause throwing an exception)
+    /// as listening socket on server site is not connected
+    /// (Socket.Connected property value is set to 'false') - it only listens for new connections and accepts them.
+    /// For each connection new separate (and connected) socket is created to handle it individually.
+    /// </remarks>
     public void Dispose()
     {
         ShallAcceptConnections = false;
 
         _connectionHandlers.ForEach(connectionHandler => connectionHandler.Dispose());
 
-        // For connection-oriented protocols (such as TCP),
-        // it is recommended to call Socket.Shutdown before disposing the socket (calling socket.Close()).
-        _listeningSocket.Shutdown(SocketShutdown.Both);
         _listeningSocket.Close();                         // Calls Socket.Dispose() internally.
     }
     #endregion

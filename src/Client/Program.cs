@@ -32,6 +32,13 @@ using (var socketClient = new ClientTcpSocket(serverEndPoint, receivingBufferSiz
         {
             byte[] inputAsBytes = Encoding.UTF8.GetBytes(input);
             _ = socketClient.SentData(inputAsBytes);    // Sent typed string in background.
+
+            if (input == "end") // To perform graceful shutdown.
+            {
+                break;
+            }
         }
     }
 }
+
+Console.ReadLine();
