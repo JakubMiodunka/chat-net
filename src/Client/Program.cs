@@ -1,4 +1,4 @@
-﻿using Client;
+﻿using Client.Sockets;
 using CommonUtilities.BitPadding;
 using CommonUtilities.Ciphers;
 using CommonUtilities.Protocols;
@@ -14,24 +14,36 @@ var encryptionKey = new byte[16] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
 var bitPaddingProvider = new PkcsBitPaddingProvider(TeaCipher.DataBlockSize);
 var cipher = new TeaCipher(encryptionKey, bitPaddingProvider);
 
+// Event handlers:
+void DataReceivedEventHandler(byte[] receivedData)
+{
+    string receivedText = Encoding.UTF8.GetString(receivedData);
+    Console.WriteLine($"\rServer: {receivedText}");
+}
+
+void ConnectionClosedEventHandler()
+{
+    Console.WriteLine($"\rServer: Connection closed.");
+}
+
 // Main:
 using (var socketClient = new ClientTcpSocket(serverEndPoint, receivingBufferSize, protocol, cipher))
 {
-    socketClient.DataReceivedEvent += (data) => Console.WriteLine($"\rSERVER: {Encoding.UTF8.GetString(data.ToArray())}");
-    socketClient.ConnectionClosedEvent += () => Console.WriteLine($"\rSERVER CLOSED CONNECTION");
-    socketClient.ConnectToServer();
+    socketClient.DataReceivedEvent += DataReceivedEventHandler;
+    socketClient.ConnectionClosedEvent += ConnectionClosedEventHandler;
 
-    _ = socketClient.StartListeningForData();   // Listen for incoming data in background.
+    socketClient.ConnectToServer();
+    Console.WriteLine("Client: Connected to server.");
+    _ = socketClient.StartListeningForData();
 
     while (true)
     {
-        Console.Write("\rCLIENT:");
         string? input = Console.ReadLine();
 
         if (input is not null)
         {
             byte[] inputAsBytes = Encoding.UTF8.GetBytes(input);
-            _ = socketClient.SentData(inputAsBytes);    // Sent typed string in background.
+            _ = socketClient.SentData(inputAsBytes);
 
             if (input == "end") // To perform graceful shutdown.
             {
@@ -41,4 +53,5 @@ using (var socketClient = new ClientTcpSocket(serverEndPoint, receivingBufferSiz
     }
 }
 
+Console.WriteLine("Press ENTER to continue...");
 Console.ReadLine();

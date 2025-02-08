@@ -4,10 +4,9 @@ using CommonUtilities.Ciphers;
 using CommonUtilities.Protocols;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 
 
-namespace Server;
+namespace Server.Sockets;
 
 /// <summary>
 /// Socket wrapper, which serves as a server in TCP client-server architecture.
@@ -18,15 +17,23 @@ namespace Server;
 /// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.acceptasync?view=net-9.0"/>
 public sealed class ServerTcpSocket : IDisposable
 {
+    #region Delegates
+    public delegate void ConnectionAcceptedDelegate(int connectionIdentifier);
+    public delegate void DataReceivedDelegate(int connectionIdentifier, byte[] receivedData);
+    public delegate void ConnectionClosedDelegate(int connectionIdentifier);
+    #endregion
+
     #region Properties
     private readonly Socket _listeningSocket;
     private readonly int _receivingBufferSize;
     private readonly IProtocol _protocol;
     private readonly ICipher _cipher;
     private readonly List<TcpConnectionHandler> _connectionHandlers;
-    
-    public bool ShallAcceptConnections;
-    public event Action<int>? ConnectionAcceptedEvent; // Shall be assigned externally to process the event further.
+    private bool _shallAcceptConnections;
+
+    public event ConnectionAcceptedDelegate? ConnectionAcceptedEvent;
+    public event DataReceivedDelegate? DataReceivedEvent;
+    public event ConnectionClosedDelegate? ConnectionClosedEvent;
     #endregion
 
     #region Instantiation
@@ -89,15 +96,13 @@ public sealed class ServerTcpSocket : IDisposable
         _protocol = protocol;
         _cipher = cipher;
         _connectionHandlers = new List<TcpConnectionHandler>();
-        
-        ShallAcceptConnections = false;
+        _shallAcceptConnections = false;
 
         _listeningSocket.Bind(ipEndPoint);
     }
     #endregion
 
     #region Interactions
-    /// TODO: Remove demo code and re-factor when time will come.
     /// TODO: Figure out how to launch connection handler actions in entirely new thread (maybe using Thread class?).
     /// <summary>
     /// Processes newly accepted connection.
@@ -119,16 +124,16 @@ public sealed class ServerTcpSocket : IDisposable
         }
         #endregion
 
-        var connectionHandler = new TcpConnectionHandler(connectionSocket, _receivingBufferSize, _protocol, _cipher);
-        connectionHandler.ReceivedDataEvent += (sender, receivedData) => Console.WriteLine($"CLIENT {sender.ConnectionIdentifier}, MESSAGE: {Encoding.UTF8.GetString(receivedData.ToArray())}"); // Only for demo.
-        connectionHandler.ConnectionClosedEvent += (sender) => Console.WriteLine($"CLIENT {sender.ConnectionIdentifier}, CLENT CLOSED CONNECTION");    // Only for demo.
-        connectionHandler.ConnectionClosedEvent += (sender) => _connectionHandlers.Remove(sender);
+        var handler = new TcpConnectionHandler(connectionSocket, _receivingBufferSize, _protocol, _cipher);
+        handler.ReceivedDataEvent += (handler, receivedData) => DataReceivedEvent?.Invoke(handler.ConnectionIdentifier, receivedData);
+        handler.ConnectionClosedEvent += (handler) => _connectionHandlers.Remove(handler);
+        handler.ConnectionClosedEvent += (handler) => ConnectionClosedEvent?.Invoke(handler.ConnectionIdentifier);
 
-        _connectionHandlers.Add(connectionHandler);
+        _connectionHandlers.Add(handler);
 
-        Task.Run(() => connectionHandler.StartListeningForData());
+        Task.Run(() => handler.StartListeningForData());
 
-        ConnectionAcceptedEvent?.Invoke(connectionHandler.ConnectionIdentifier);
+        ConnectionAcceptedEvent?.Invoke(handler.ConnectionIdentifier);
     }
 
     /// <summary>
@@ -139,15 +144,48 @@ public sealed class ServerTcpSocket : IDisposable
     /// </returns>
     public async Task StartAcceptingConnections()
     {
-        ShallAcceptConnections = true;
-        
+        _shallAcceptConnections = true;
+
         _listeningSocket.Listen();
 
-        while (ShallAcceptConnections)
+        while (_shallAcceptConnections)
         {
             Socket connectionSocket = await _listeningSocket.AcceptAsync();
             ProcessAcceptedConnection(connectionSocket);
         }
+    }
+
+    /// <summary>
+    /// Sends provided data to specified connection.
+    /// </summary>
+    /// <param name="connectionIdentifier">
+    /// Identifier connection, to which provided data shall be sent.
+    /// </param>
+    /// <param name="data">
+    /// Data, which shall be sent to specified connection.
+    /// </param>
+    /// <returns>
+    /// Task related to pending data transfer.
+    /// </returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown, when value of at least one argument will be considered as invalid.
+    /// </exception>
+    public async Task SentData(int connectionIdentifier, IEnumerable<byte> data)
+    {
+        TcpConnectionHandler handler;
+
+        try
+        {
+            handler = _connectionHandlers.First(handler => handler.ConnectionIdentifier == connectionIdentifier);
+        }
+        catch (InvalidOperationException)
+        {
+            string argumentName = nameof(connectionIdentifier);
+            string errorMessage = $"Connection with specified identifier not found: {connectionIdentifier}";
+            throw new ArgumentOutOfRangeException(argumentName, connectionIdentifier, errorMessage);
+        }
+
+        await handler.SentData(data);
     }
 
     /// <summary>
@@ -161,11 +199,11 @@ public sealed class ServerTcpSocket : IDisposable
     /// </remarks>
     public void Dispose()
     {
-        ShallAcceptConnections = false;
+        _shallAcceptConnections = false;
 
         _connectionHandlers.ForEach(connectionHandler => connectionHandler.Dispose());
 
-        _listeningSocket.Close();                         // Calls Socket.Dispose() internally.
+        _listeningSocket.Close();   // Calls Socket.Dispose() internally.
     }
     #endregion
 }

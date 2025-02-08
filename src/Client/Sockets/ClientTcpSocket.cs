@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 
 
-namespace Client;
+namespace Client.Sockets;
 
 /// <summary>
 /// Socket wrapper, which serves as a client in TCP client-server architecture.
@@ -15,13 +15,17 @@ namespace Client;
 /// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.connect?view=net-9.0"/>
 public sealed class ClientTcpSocket : FullDuplexTcpSocket
 {
+    #region Delegates
+    public delegate void DataReceivedDelegate(byte[] receivedData);
+    #endregion
+
     #region Properties
     private readonly IPEndPoint _serverEndPoint;
 
     protected override Socket Socket { get; }
 
-    public event Action<IEnumerable<byte>> DataReceivedEvent; // Shall be assigned externally to process revived data further.
-    public event Action ConnectionClosedEvent;                // Shall be assigned externally to process the event further. 
+    public event DataReceivedDelegate? DataReceivedEvent;
+    public event Action? ConnectionClosedEvent;
     #endregion
 
     #region Instantiation
@@ -83,7 +87,7 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
         }
         #endregion
 
-        DataReceivedEvent?.Invoke(receivedData);
+        DataReceivedEvent?.Invoke(receivedData.ToArray());
     }
 
     /// <summary>
@@ -110,10 +114,10 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
         {
             const string ErrorMessage = "Socket already connected to server:";
             throw new InvalidOperationException(ErrorMessage);
-        }      
+        }
         #endregion
 
-        Socket.Connect(_serverEndPoint);
+        Socket.Connect(_serverEndPoint);    // Throws SocketException when connection will fail.
     }
     #endregion
 }

@@ -4,14 +4,19 @@ using CommonUtilities.Sockets;
 using System.Net.Sockets;
 
 
-namespace Server;
+namespace Server.Sockets;
 
 /// <summary>
 /// Handles connections accepted by TCP-based server.
 /// Capable to transfer encrypted data in full-duplex manner.
 /// </summary>
-public sealed class TcpConnectionHandler : FullDuplexTcpSocket
+internal sealed class TcpConnectionHandler : FullDuplexTcpSocket
 {
+    #region Delegates
+    public delegate void DataReceivedDelegate(TcpConnectionHandler sender, byte[] receivedData);
+    public delegate void ConnectionClosedDelegate(TcpConnectionHandler sender);
+    #endregion
+
     #region Static properties
     private static int s_nextConnectionIdentifier = 1;
     #endregion
@@ -19,9 +24,9 @@ public sealed class TcpConnectionHandler : FullDuplexTcpSocket
     #region Properties
     protected override Socket Socket { get; }
 
-    public readonly int ConnectionIdentifier;                                       // Unique for every connection during program runtime.
-    public event Action<TcpConnectionHandler, IEnumerable<byte>> ReceivedDataEvent; // Shall be assigned externally to process revived data further.
-    public event Action<TcpConnectionHandler> ConnectionClosedEvent;                // Shall be assigned externally to process the event further. 
+    public readonly int ConnectionIdentifier;
+    public event DataReceivedDelegate? ReceivedDataEvent;
+    public event ConnectionClosedDelegate? ConnectionClosedEvent;
     #endregion
 
     #region Instantiation
@@ -93,7 +98,7 @@ public sealed class TcpConnectionHandler : FullDuplexTcpSocket
         }
         #endregion
 
-        ReceivedDataEvent?.Invoke(this, receivedData);
+        ReceivedDataEvent?.Invoke(this, receivedData.ToArray());
     }
 
     /// <summary>
