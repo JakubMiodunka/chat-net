@@ -44,7 +44,7 @@ public sealed class SimpleSessionLayerProtocolTests
     public void InstanceExposesUsedHeaderLengthProperly(
         [Values(1, 2)] int validHeaderLength)
     {
-        var protocol = new SimpleSessionLayerProtocol(DefaultHeaderLength);
+        var protocol = new SimpleSessionLayerProtocol(validHeaderLength);
 
         Assert.That(protocol.HeaderLength, Is.EqualTo(validHeaderLength));
     }
