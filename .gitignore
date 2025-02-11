@@ -11,5 +11,11 @@ src/CommonUtilitiesTests/obj/
 src/Client/bin/
 src/Client/obj/
 
+src/ClientTests/bin/
+src/ClientTests/obj/
+
 src/Server/bin/
 src/Server/obj/
+
+src/ServerTests/bin/
+src/ServerTests/obj/
