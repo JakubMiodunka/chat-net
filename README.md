@@ -2,11 +2,15 @@
 
 ## Description
 
-TODO
+Chat-Net is a chatting application build abound *.NET*, utilizing client-server architecture.
 
-## High Level Requirements
+It was created for educational purposes to gain knowledge in following fields:
 
-TODO
+* low level socket programming
+* asynchronous programming
+* interactions with SQL-databases
+* basics of cryptography
+* graphical user interfaces
 
 ## Repository Structure
 
@@ -27,13 +31,25 @@ TODO
 
 * */src/CommonUtilities* - Source code of unit tests for common utilities library.
 
+## Implementation Details
+
+### Data transmission
+
+Data transfer between clients and server is utilized with [TCP](https://en.wikipedia.org/wiki/Transmission_Control_Protocol "Wikipedia article") sockets programmed on relatively low level (mainly for educational purposes rather than some more relevant benefits).
+
+Project requirements specified, that transmission shall be encrypted, but implementation commercial-grade solution was not necessary (as it'a more educational project), so to make things more convenient it was decided to use some sort of [symmetric-key algorithm](https://en.wikipedia.org/wiki/Symmetric-key_algorithm "Wikipedia article"), where encryption key is stored locally as one of configuration value. Finally [TEA algorithm](https://en.wikipedia.org/wiki/Tiny_Encryption_Algorithm "Wikipedia article") was chosen as its implementation was easy. Architecture of communication cipher was designed to be modular, so changing the encryption method in the future shall not be a problem.
+
+TEA algorithm is operating on fixed-length data blocks, so additionally some sort of padding function was required - [PKCS algorithm](https://www.ibm.com/docs/en/zos/2.4.0?topic=rules-pkcs-padding-method "IBM documentation") was introduced. It was not embedded in communication cipher, but implemented as separate entity, so it can be used also for other purposes if necessary or easily change for other padding method.
+
+TCP sockets are stream-oriented and can fragment transferred data in (more or less) unpredicted way. To handle communication on 5th [ISO/OSI](https://en.wikipedia.org/wiki/OSI_model "Wikipedia article") layer properly, it is required to use some kind of mechanism, which will check, if full patch of data was already transferred. For sake of this purpose Simple Session Layer Protocol (SSLP) was invented and used within the project. Its description is available in separate section of this README.
+
 ## Simple Session Layer Protocol
 
 ### Overview
 
 When dealing with TCP sockets it is not guaranteed, that exactly one call of Socket.Sent on the sender site will result in exactly one call of Socket.Receive on the recipient site - there is a need to check if particular patch of data was received fully or partially.
 
-Above mentioned need was the origin of Simple Session Layer Protocol (SSLP) - trivial and easy to implement protocol operating on [session (5th) layer](https://en.wikipedia.org/wiki/Session_layer) of [OSI model](https://en.wikipedia.org/wiki/OSI_model), created for sake of this project.
+Above mentioned need was the origin of Simple Session Layer Protocol (SSLP) - trivial and easy to implement protocol operating on [session (5th) layer](https://en.wikipedia.org/wiki/Session_layer "Wikipedia article") of [OSI model](https://en.wikipedia.org/wiki/OSI_model "Wikipedia article"), created for sake of this project.
 
 ### Packet structure
 
@@ -47,15 +63,15 @@ Patch of data (packet payload) sent through the socket is preceded by fixed leng
 
 ## Used Tools
 
-* IDE: [Visual Studio 2022](https://visualstudio.microsoft.com/vs/)
-* Documentation generator: [DoxyGen 1.12.0](https://www.doxygen.nl/)
+* IDE: [Visual Studio 2022](https://visualstudio.microsoft.com/vs/ "Visual Studio website")
+* Documentation generator: [DoxyGen 1.12.0](https://www.doxygen.nl/ "DoxyGen website")
 
 ## Authors
 
 * Jakub Miodunka
-  * [GitHub](https://github.com/JakubMiodunka)
-  * [LinkedIn](https://www.linkedin.com/in/jakubmiodunka/)
+  * [GitHub](https://github.com/JakubMiodunka "GitHub profile")
+  * [LinkedIn](https://www.linkedin.com/in/jakubmiodunka/ "LinkedIn profile")
 
 ## License
 
-This project is licensed under the MIT License - see the *LICENSE.md* file for details.
+This project is licensed under the MIT License - see the [*LICENSE.md*](./LICENSE "Licence") file for details.
