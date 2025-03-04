@@ -34,7 +34,6 @@ using (var socketClient = new ClientTcpSocket(serverEndPoint, receivingBufferSiz
 
     socketClient.ConnectToServer();
     Console.WriteLine("Client: Connected to server.");
-    _ = socketClient.StartListeningForData();
 
     while (true)
     {
@@ -43,12 +42,13 @@ using (var socketClient = new ClientTcpSocket(serverEndPoint, receivingBufferSiz
         if (input is not null)
         {
             byte[] inputAsBytes = Encoding.UTF8.GetBytes(input);
-            _ = socketClient.SentData(inputAsBytes);
-
+            
             if (input == "end") // To perform graceful shutdown.
             {
                 break;
             }
+
+            _ = socketClient.SentData(inputAsBytes);
         }
     }
 }

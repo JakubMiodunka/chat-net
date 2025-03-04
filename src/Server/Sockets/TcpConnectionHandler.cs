@@ -108,5 +108,18 @@ internal sealed class TcpConnectionHandler : FullDuplexTcpSocket
     {
         ConnectionClosedEvent?.Invoke(this);
     }
+
+    /// <summary>
+    /// Triggers continues process of listening for new patches of data on socket.
+    /// </summary>
+    /// <remarks>
+    /// Makes base.StartListeningForData method public as freshly created handler instance
+    /// is not fully configured. Process of listening for incoming data shall be triggered
+    /// manually, right after configuration of handler instance will be finished.
+    /// </remarks>
+    public new void StartListeningForData()
+    {
+        Task.Run(base.StartListeningForData);
+    }
     #endregion
 }

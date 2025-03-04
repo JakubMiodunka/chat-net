@@ -103,7 +103,6 @@ public sealed class ServerTcpSocket : IDisposable
     #endregion
 
     #region Interactions
-    /// TODO: Figure out how to launch connection handler actions in entirely new thread (maybe using Thread class?).
     /// <summary>
     /// Processes newly accepted connection.
     /// </summary>
@@ -129,9 +128,9 @@ public sealed class ServerTcpSocket : IDisposable
         handler.ConnectionClosedEvent += (handler) => _connectionHandlers.Remove(handler);
         handler.ConnectionClosedEvent += (handler) => ConnectionClosedEvent?.Invoke(handler.ConnectionIdentifier);
 
+        handler.StartListeningForData();
+        
         _connectionHandlers.Add(handler);
-
-        Task.Run(() => handler.StartListeningForData());
 
         ConnectionAcceptedEvent?.Invoke(handler.ConnectionIdentifier);
     }

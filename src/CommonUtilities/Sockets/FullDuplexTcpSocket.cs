@@ -104,7 +104,7 @@ public abstract class FullDuplexTcpSocket : IDisposable
     /// <exception cref="InvalidOperationException">
     /// Thrown, when socket is not connected to remote resource.
     /// </exception>
-    public async Task StartListeningForData()
+    protected async Task StartListeningForData()
     {
         #region Arguments validation
         if (!Socket.Connected)
@@ -121,8 +121,7 @@ public abstract class FullDuplexTcpSocket : IDisposable
         {
             int sizeOfReceivedDataChunk = await Socket.ReceiveAsync(receivingBuffer);
 
-            // Receiving 0 bytes is an indicator,
-            // that remote resource closed its socket.
+            // Receiving 0 bytes is an indicator, that remote resource closed its socket.
             if (sizeOfReceivedDataChunk == 0)
             {
                 Dispose();  // As we do not re-use the socket, it is disposed as soon as possible.

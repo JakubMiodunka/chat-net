@@ -103,6 +103,7 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
     /// </summary>
     /// <remarks>
     /// Server end point shall be specified during instance initialization.
+    /// Client TCP socket will start listening for incoming data immediately, after connection will be established.
     /// </remarks>
     /// <exception cref="InvalidOperationException">
     /// Thrown, when socket is already connected to server.
@@ -118,6 +119,7 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
         #endregion
 
         Socket.Connect(_serverEndPoint);    // Throws SocketException when connection will fail.
+        Task.Run(StartListeningForData);
     }
     #endregion
 }
