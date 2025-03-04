@@ -6,6 +6,7 @@ using CommonUtilities.BitPadding;
 namespace CommonUtilitiesTests.BitPadding;
 
 [TestOf(typeof(PkcsBitPaddingProvider))]
+[Category("Unit Test")]
 [Author("Jakub Miodunka")]
 public sealed class PkcsBitPaddingProviderTests
 {

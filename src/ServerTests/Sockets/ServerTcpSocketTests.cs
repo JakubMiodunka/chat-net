@@ -8,11 +8,13 @@ using System.Net;
 namespace ServerTests.Sockets;
 
 [TestOf(typeof(ServerTcpSocket))]
-[Author("Jakub Miodunka")]
+[Category("Unit Test")]
 [NonParallelizable]
+[Author("Jakub Miodunka")]
 public class ServerTcpSocketTests
 {
     #region Default values
+    private const int DefaultPort = 8888;
     private const int DefaultReceivingBufferSize = 1024;
 
     private IPEndPoint _defaultIpEndPoint;
@@ -22,7 +24,7 @@ public class ServerTcpSocketTests
     [SetUp]
     public void SetUp()
     {
-        _defaultIpEndPoint = new IPEndPoint(IPAddress.Loopback, 8888);
+        _defaultIpEndPoint = new IPEndPoint(IPAddress.Loopback, DefaultPort);
     }
     #endregion
 

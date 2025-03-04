@@ -8,6 +8,7 @@ using System.Net;
 namespace ClientTests.Sockets;
 
 [TestOf(typeof(ClientTcpSocket))]
+[Category("Unit Test")]
 [Author("Jakub Miodunka")]
 [NonParallelizable]
 public class ClientTcpSocketTests

@@ -4,6 +4,7 @@
 namespace CommonUtilitiesTests.Protocols;
 
 [TestOf(typeof(SimpleSessionLayerProtocol))]
+[Category("Unit Test")]
 [Author("Jakub Miodunka")]
 public sealed class SimpleSessionLayerProtocolTests
 {

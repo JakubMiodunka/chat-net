@@ -8,6 +8,7 @@ using Moq;
 namespace CommonUtilitiesTests.Ciphers;
 
 [TestOf(typeof(TeaCipher))]
+[Category("Unit Test")]
 [Author("Jakub Miodunka")]
 public sealed class TeaCipherTests
 {
