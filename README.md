@@ -12,6 +12,8 @@ It was created for educational purposes to gain knowledge in following fields:
 * basics of cryptography
 * graphical user interfaces
 
+Keep in mind, that this project is still under development and not all planned features are implemented yet.
+
 ## Repository Structure
 
 * */doc* - Contains project documentation.
