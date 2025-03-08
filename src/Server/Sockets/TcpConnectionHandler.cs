@@ -10,6 +10,11 @@ namespace Server.Sockets;
 /// Handles connections accepted by TCP-based server.
 /// Capable to transfer encrypted data in full-duplex manner.
 /// </summary>
+/// <remarks>
+/// To get it to operational state properly, first instantiate the class member, then assign events handlers
+/// and finally call StartListeningForData() method to start data transfer.
+/// Do not forget to dispose created instance, when it will be no longer needed.
+/// </remarks>
 internal sealed class TcpConnectionHandler : FullDuplexTcpSocket
 {
     #region Delegates
@@ -22,6 +27,9 @@ internal sealed class TcpConnectionHandler : FullDuplexTcpSocket
     #endregion
 
     #region Properties
+    private Task? _listeningForDataTask;
+    private readonly CancellationTokenSource _cancellationTokenSourceForDataListening;
+
     protected override Socket Socket { get; }
 
     public readonly int ConnectionIdentifier;
@@ -71,6 +79,9 @@ internal sealed class TcpConnectionHandler : FullDuplexTcpSocket
         }
         #endregion
 
+        _listeningForDataTask = null;
+        _cancellationTokenSourceForDataListening = new CancellationTokenSource();
+
         Socket = clientSocket;
 
         ConnectionIdentifier = s_nextConnectionIdentifier++;
@@ -117,9 +128,24 @@ internal sealed class TcpConnectionHandler : FullDuplexTcpSocket
     /// is not fully configured. Process of listening for incoming data shall be triggered
     /// manually, right after configuration of handler instance will be finished.
     /// </remarks>
-    public new void StartListeningForData()
+    public void StartListeningForData()
     {
-        Task.Run(base.StartListeningForData);
+        _listeningForDataTask = StartListeningForData(_cancellationTokenSourceForDataListening.Token);
+    }
+
+    /// <summary>
+    /// Suppresses currently pending sending and receiving operations on socket
+    /// and dispose the socket itself.
+    /// </summary>
+    public override void Dispose()
+    {
+        if (_listeningForDataTask is not null)
+        {
+            _cancellationTokenSourceForDataListening.Cancel();
+            _listeningForDataTask.Wait();
+        }
+
+        base.Dispose();
     }
     #endregion
 }

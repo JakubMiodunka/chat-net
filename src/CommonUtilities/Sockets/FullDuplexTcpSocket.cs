@@ -98,13 +98,16 @@ public abstract class FullDuplexTcpSocket : IDisposable
     /// <summary>
     /// Triggers continues process of listening for new patches of data on socket.
     /// </summary>
+    /// <param name="cancellationToken">
+    /// Cancellation token, which shall be bound to launched task.
+    /// </param>
     /// <returns>
     /// Task related to pending data transfer.
     /// </returns>
     /// <exception cref="InvalidOperationException">
     /// Thrown, when socket is not connected to remote resource.
     /// </exception>
-    protected async Task StartListeningForData()
+    protected async Task StartListeningForData(CancellationToken cancellationToken)
     {
         #region Arguments validation
         if (!Socket.Connected)
@@ -114,17 +117,26 @@ public abstract class FullDuplexTcpSocket : IDisposable
         }
         #endregion
 
+        Task<int>? receivingTask = null;
         var receivedData = new List<byte>();
         var receivingBuffer = new byte[_receivingBufferSize];
 
-        while (Socket.Connected)
+        while (Socket.Connected && !cancellationToken.IsCancellationRequested)
         {
-            int sizeOfReceivedDataChunk = await Socket.ReceiveAsync(receivingBuffer);
+            receivingTask ??= Socket.ReceiveAsync(receivingBuffer);
+
+            if (!receivingTask.IsCompleted)
+            {
+                await Task.Delay(200);  // TODO: Maybe this time period shall be included in configuration rather than hard-coded here.
+                continue;
+            }
+
+            int sizeOfReceivedDataChunk = receivingTask.Result;
+            receivingTask = null;
 
             // Receiving 0 bytes is an indicator, that remote resource closed its socket.
             if (sizeOfReceivedDataChunk == 0)
             {
-                Dispose();  // As we do not re-use the socket, it is disposed as soon as possible.
                 ReactOnConnectionClose();
                 return;
             }
@@ -193,7 +205,7 @@ public abstract class FullDuplexTcpSocket : IDisposable
     /// Suppresses currently pending sending and receiving operations on socket
     /// and dispose the socket itself.
     /// </summary>
-    public void Dispose()
+    public virtual void Dispose()
     {
         // Value of Socket.Connected property is not depend on state of connected remote resource.
         // Is set to 'true' during runtime of Socket.Connect method and to 'false', when socket is being disposed.

@@ -40,7 +40,7 @@ using (var tcpServer = new ServerTcpSocket(serverEndPoint, receivingBufferSize, 
     tcpServer.DataReceivedEvent += (int connectionIdentifier, byte[] receivedData) => DataReceivedEventHandler(tcpServer, connectionIdentifier, receivedData);
     tcpServer.ConnectionClosedEvent += ConnectionClosedEventHandler;
 
-    _ = tcpServer.StartAcceptingConnections();
+    tcpServer.StartAcceptingConnections();
     Console.WriteLine("Server: Listening for connections...");
 
     while (true)

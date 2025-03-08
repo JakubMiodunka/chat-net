@@ -11,6 +11,11 @@ namespace Server.Sockets;
 /// <summary>
 /// Socket wrapper, which serves as a server in TCP client-server architecture.
 /// </summary>
+/// <remarks>
+/// To get it to operational state properly, first instantiate the class member, then assign events handlers
+/// and finally call StartAcceptingConnections() method to start accepting new clients.
+/// Do not forget to dispose created instance, when it will be no longer needed.
+/// </remarks>
 /// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket?view=net-9.0"/>
 /// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.bind?view=net-9.0"/>
 /// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.listen?view=net-9.0"/>
@@ -29,7 +34,8 @@ public sealed class ServerTcpSocket : IDisposable
     private readonly IProtocol _protocol;
     private readonly ICipher _cipher;
     private readonly List<TcpConnectionHandler> _connectionHandlers;
-    private bool _shallAcceptConnections;
+    private Task? _acceptingConnectionsTask;
+    private readonly CancellationTokenSource _cancellationTokenSourceForAcceptingConnections;
 
     public event ConnectionAcceptedDelegate? ConnectionAcceptedEvent;
     public event DataReceivedDelegate? DataReceivedEvent;
@@ -96,7 +102,8 @@ public sealed class ServerTcpSocket : IDisposable
         _protocol = protocol;
         _cipher = cipher;
         _connectionHandlers = new List<TcpConnectionHandler>();
-        _shallAcceptConnections = false;
+        _acceptingConnectionsTask = null;
+        _cancellationTokenSourceForAcceptingConnections = new CancellationTokenSource();
 
         _listeningSocket.Bind(ipEndPoint);
     }
@@ -138,20 +145,38 @@ public sealed class ServerTcpSocket : IDisposable
     /// <summary>
     /// Triggers continues process of listening and accepting new connections on listening socket.
     /// </summary>
-    /// <returns>
-    /// Task related to listening and accepting new connections on listening socket.
-    /// </returns>
-    public async Task StartAcceptingConnections()
+    /// <param name="cancellationToken">
+    /// Cancellation token, which shall be bound to launched task.
+    /// </param>
+    private async Task StartAcceptingConnections(CancellationToken cancellationToken)
     {
-        _shallAcceptConnections = true;
-
         _listeningSocket.Listen();
 
-        while (_shallAcceptConnections)
+        Task<Socket>? acceptNewConnectionTask = null;
+
+        while (_listeningSocket.IsBound && !cancellationToken.IsCancellationRequested)
         {
-            Socket connectionSocket = await _listeningSocket.AcceptAsync();
+            acceptNewConnectionTask ??= _listeningSocket.AcceptAsync();
+
+            if (!acceptNewConnectionTask.IsCompleted)
+            {
+                await Task.Delay(200);  // TODO: Maybe this time period shall be included in configuration rather than hard-coded here.
+                continue;
+            }
+
+            Socket connectionSocket = acceptNewConnectionTask.Result;
+            acceptNewConnectionTask = null;
+
             ProcessAcceptedConnection(connectionSocket);
         }
+    }
+
+    /// <summary>
+    /// Triggers continues process of listening and accepting new connections on listening socket.
+    /// </summary>
+    public void StartAcceptingConnections()
+    {
+        _acceptingConnectionsTask = StartAcceptingConnections(_cancellationTokenSourceForAcceptingConnections.Token);
     }
 
     /// <summary>
@@ -192,15 +217,19 @@ public sealed class ServerTcpSocket : IDisposable
     /// </summary>
     /// <remarks>
     /// Calling Socket.Shutdown method is not necessary here (and will cause throwing an exception)
-    /// as listening socket on server site is not connected
-    /// (Socket.Connected property value is set to 'false') - it only listens for new connections and accepts them.
+    /// as listening socket on server site is not connected (Socket.Connected property value is set
+    /// to 'false') - it only listens for new connections and accepts them.
     /// For each connection new separate (and connected) socket is created to handle it individually.
     /// </remarks>
     public void Dispose()
     {
-        _shallAcceptConnections = false;
-
         _connectionHandlers.ForEach(connectionHandler => connectionHandler.Dispose());
+
+        if (_acceptingConnectionsTask is not null)
+        {
+            _cancellationTokenSourceForAcceptingConnections.Cancel();
+            _acceptingConnectionsTask.Wait();
+        }
 
         _listeningSocket.Close();   // Calls Socket.Dispose() internally.
     }
