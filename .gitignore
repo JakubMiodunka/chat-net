@@ -19,3 +19,6 @@ src/Server/obj/
 
 src/ServerTests/bin/
 src/ServerTests/obj/
+
+src/IntegrationTests/bin/
+src/IntegrationTests/obj/
