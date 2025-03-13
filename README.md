@@ -23,15 +23,13 @@ Keep in mind, that this project is still under development and not all planned f
 
 * */src/Client* - Source code of client application.
 
-* */src/ClientTests* - Source code of unit tests for client application.
-
 * */src/Server* - Source code of server application.
-
-* */src/ServerTests* - Source code of unit tests for server application.
 
 * */src/CommonUtilities* - Source code of library containing functionalities used both by server and client application.
 
-* */src/CommonUtilities* - Source code of unit tests for common utilities library.
+* */src/UnitTests* - Source code of unit tests.
+
+* */src/IntegrationTests* - Source code of integration tests.
 
 ## Implementation Details
 
