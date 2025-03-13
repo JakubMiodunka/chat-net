@@ -22,7 +22,7 @@ public sealed class SimpleSessionLayerProtocolTests
     private static readonly Random s_randomNumberGenerator = new Random();
     #endregion
 
-    #region TestCases
+    #region Test cases
     [Test]
     public void InstantiationImpossibleUsingInvalidHeaderLength(
         [Values(0)] int invalidHeaderLength)
