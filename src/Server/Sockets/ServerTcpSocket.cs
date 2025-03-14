@@ -132,7 +132,7 @@ public sealed class ServerTcpSocket : IDisposable
 
         var handler = new TcpConnectionHandler(connectionSocket, _receivingBufferSize, _protocol, _cipher);
         handler.ReceivedDataEvent += (handler, receivedData) => DataReceivedEvent?.Invoke(handler.ConnectionIdentifier, receivedData);
-        handler.ConnectionClosedEvent += (handler) => { lock (_connectionHandlers) { _connectionHandlers.Remove(handler); } };
+        handler.ConnectionClosedEvent += (handler) => { handler.Dispose(); lock(_connectionHandlers) { _connectionHandlers.Remove(handler); } };
         handler.ConnectionClosedEvent += (handler) => ConnectionClosedEvent?.Invoke(handler.ConnectionIdentifier);
         
         lock(_connectionHandlers)
@@ -203,7 +203,7 @@ public sealed class ServerTcpSocket : IDisposable
 
         try
         {
-            lock(_connectionHandlers)
+            lock (_connectionHandlers)
             {
                 handler = _connectionHandlers.First(handler => handler.ConnectionIdentifier == connectionIdentifier);
             }
@@ -230,13 +230,13 @@ public sealed class ServerTcpSocket : IDisposable
     /// </exception>
     public void CloseConnection(int connectionIdentifier)
     {
+        TcpConnectionHandler handler;
+
         try
         {
             lock (_connectionHandlers)
             {
-                _connectionHandlers
-                    .First(handler => handler.ConnectionIdentifier == connectionIdentifier)
-                    .Dispose();
+                handler = _connectionHandlers.First(handler => handler.ConnectionIdentifier == connectionIdentifier);
             }
         }
         catch (InvalidOperationException)
@@ -244,6 +244,13 @@ public sealed class ServerTcpSocket : IDisposable
             string argumentName = nameof(connectionIdentifier);
             string errorMessage = $"Connection with specified identifier not found: {connectionIdentifier}";
             throw new ArgumentOutOfRangeException(argumentName, connectionIdentifier, errorMessage);
+        }
+
+        handler.Dispose();
+
+        lock (_connectionHandlers)
+        {
+            _connectionHandlers.Remove(handler);
         }
     }
 
@@ -258,18 +265,15 @@ public sealed class ServerTcpSocket : IDisposable
     /// </remarks>
     public void Dispose()
     {
-        // We need to create a copy of connection handlers list, as it is modified
-        // by handlers through events raised during their disposal.
-        List<TcpConnectionHandler> _connectionHandlersCopy;
+        // Connection handlers list may be modified by events raised by handlers, so we need to operate on its copy.
+        List<TcpConnectionHandler> handlersCopy;
 
         lock (_connectionHandlers)
         {
-            // Lock needs to be released before connection handlers disposal to avoid deadlock
-            // (connection handlers list is being locked by events raised during their disposal). 
-            _connectionHandlersCopy = _connectionHandlers.ToList();
+            handlersCopy = _connectionHandlers.ToList();
         }
 
-        _connectionHandlersCopy.ForEach(connectionHandler => connectionHandler.Dispose());
+        handlersCopy.ForEach(handler => handler.Dispose());
 
         if (_acceptingConnectionsTask is not null)
         {
