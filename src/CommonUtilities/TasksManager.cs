@@ -1,0 +1,66 @@
+﻿namespace CommonUtilities;
+
+/// <summary>
+/// Provides thread-safe mechanism for effective management of tasks pool.
+/// </summary>
+public abstract class TasksManager : IDisposable
+{
+    #region Properties
+    private readonly List<Task> _tasks;
+    #endregion
+
+    #region Instantiation
+    protected TasksManager()
+    {
+        _tasks = new List<Task>();
+    }
+    #endregion
+
+    #region Interactions
+    /// <summary>
+    /// Adds provided task to pool of managed tasks.
+    /// </summary>
+    /// <remarks>
+    /// Additionally whenever this method is being invoked, completed tasks are removed
+    /// from pool of managed tasks. It is simple yet effective mechanism of lazy-management of the pool.
+    /// </remarks>
+    /// <param name="task">
+    /// Task, which shall be added to pool of managed event tasks.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown, when at least one reference-type argument is a null reference.
+    /// </exception>
+    protected void AddTask(Task task)
+    {
+        #region Arguments validation
+        if (task is null)
+        {
+            string argumentName = nameof(task);
+            const string ErrorMessage = "Provided event task is a null reference:";
+            throw new ArgumentNullException(argumentName, ErrorMessage);
+        }
+        #endregion
+
+        lock (_tasks)
+        {
+            List<Task> compleatedEventTasks = _tasks.Where(task => task.IsCompleted).ToList();
+            compleatedEventTasks.ForEach(task => _tasks.Remove(task));
+
+            _tasks.Add(task);
+        }
+    }
+
+    /// <summary>
+    /// Waits for completion of every task present in managed pool. 
+    /// </summary>
+    public virtual void Dispose()
+    {
+        Task.WaitAll(_tasks);
+
+        lock (_tasks)
+        {
+            _tasks.Clear();
+        }
+    }
+    #endregion
+}

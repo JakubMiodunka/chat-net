@@ -15,13 +15,13 @@ namespace CommonUtilities.Sockets;
 /// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.sendasync?view=net-9.0"/>
 /// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.shutdown?view=net-9.0"/>
 /// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.close?view=net-9.0"/>
-public abstract class FullDuplexTcpSocket : IDisposable
+public abstract class FullDuplexTcpSocket : TasksManager
 {
     #region Properties
     private readonly int _receivingBufferSize;
     private readonly IProtocol _protocol;
     private readonly ICipher _cipher;
-    
+
     protected abstract Socket Socket { get; }   // Shall be connected to remote resource by derivative class before transferring data.
     #endregion
 
@@ -75,7 +75,7 @@ public abstract class FullDuplexTcpSocket : IDisposable
     }
     #endregion
 
-    #region Interactions
+    #region Interactions 
     /// <summary>
     /// Processes received patches of data.
     /// </summary>
@@ -85,15 +85,15 @@ public abstract class FullDuplexTcpSocket : IDisposable
     /// <param name="receivedData">
     /// New patch of data, required to be processed further.
     /// </param>
-    protected abstract void ProcessReceivedData(IEnumerable<byte> receivedData);
+    protected abstract void RaiseDataReceivedEvent(IEnumerable<byte> receivedData);
 
     /// <summary>
-    /// Reacts to situation, when remote resource will close the connection..
+    /// Reacts to situation, when remote resource will close the connection.
     /// </summary>
     /// <remarks>
     /// Method shall be implemented by derivative class according to specific needs.
     /// </remarks>
-    protected abstract void ReactOnConnectionClose();
+    protected abstract void RaiseConnectionClosedEvent();
 
     /// <summary>
     /// Triggers continues process of listening for new patches of data on socket.
@@ -137,7 +137,9 @@ public abstract class FullDuplexTcpSocket : IDisposable
             // Receiving 0 bytes is an indicator, that remote resource closed its socket.
             if (sizeOfReceivedDataChunk == 0)
             {
-                ReactOnConnectionClose();
+                Task connectionCloseEventTask = Task.Run(RaiseConnectionClosedEvent);
+                AddTask(connectionCloseEventTask);
+
                 return;
             }
 
@@ -159,7 +161,8 @@ public abstract class FullDuplexTcpSocket : IDisposable
 
             byte[] decryptedPayload = _cipher.Decrypt(encryptedPayload);
 
-            ProcessReceivedData(decryptedPayload);
+            Task dataReceivedEvent = Task.Run(() => RaiseDataReceivedEvent(decryptedPayload));
+            AddTask(dataReceivedEvent);
         }
     }
 
@@ -205,7 +208,7 @@ public abstract class FullDuplexTcpSocket : IDisposable
     /// Suppresses currently pending sending and receiving operations on socket
     /// and dispose the socket itself.
     /// </summary>
-    public virtual void Dispose()
+    public override void Dispose()
     {
         // Value of Socket.Connected property is not depend on state of connected remote resource.
         // Is set to 'true' during runtime of Socket.Connect method and to 'false', when socket is being disposed.
@@ -218,6 +221,8 @@ public abstract class FullDuplexTcpSocket : IDisposable
         }
 
         Socket.Close(); // Calls Socket.Dispose() internally.
+
+        base.Dispose();
     }
     #endregion
 }

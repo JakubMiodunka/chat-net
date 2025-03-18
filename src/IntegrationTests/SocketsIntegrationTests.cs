@@ -132,7 +132,7 @@ public class SocketsIntegrationTests
     }
 
     [Test]
-    public void ServerReactsWhenClientsDisconnect(
+    public void ServerReactsWhenClientsAreClosingConnections(
         [Values(1, 2, 40)] int numberOfClients,
         [Values(250)] int eventsTimeout)
     {
@@ -177,9 +177,12 @@ public class SocketsIntegrationTests
     }
 
     [Test]
-    public void ClientReactsWhenServerDisconnects(
+    public void ClientReactsWhenServerClosesConnection(
         [Values(250)] int eventsTimeout)
     {
+        int connectionIdentifier = 0;
+        _server.ConnectionAcceptedEvent += (identifier) => connectionIdentifier = identifier;
+
         _server.StartAcceptingConnections();
 
         ClientTcpSocket client = CreateClient();
@@ -190,8 +193,27 @@ public class SocketsIntegrationTests
         client.ConnectToServer();
         Task.Delay(eventsTimeout).Wait();    // Time required to process ConnectionAcceptedEvent by the server.
 
-        _server.Dispose();
+        _server.CloseConnection(connectionIdentifier);
         
+        Assert.That(() => eventRaised, Is.True.After(eventsTimeout));
+    }
+
+    [Test]
+    public void ClientReactsWhenServerIsBeingDisposed(
+        [Values(250)] int eventsTimeout)
+    {
+        _server.StartAcceptingConnections();
+
+        ClientTcpSocket client = CreateClient();
+
+        bool eventRaised = false;
+        client.ConnectionClosedEvent += () => eventRaised = true;
+
+        client.ConnectToServer();
+        Task.Delay(eventsTimeout).Wait();    // Time required to process ConnectionAcceptedEvent by the server.
+
+        _server.Dispose();
+
         Assert.That(() => eventRaised, Is.True.After(eventsTimeout));
     }
     #endregion

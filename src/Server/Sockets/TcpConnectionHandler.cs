@@ -18,8 +18,8 @@ namespace Server.Sockets;
 internal sealed class TcpConnectionHandler : FullDuplexTcpSocket
 {
     #region Delegates
-    public delegate void DataReceivedDelegate(TcpConnectionHandler sender, byte[] receivedData);
-    public delegate void ConnectionClosedDelegate(TcpConnectionHandler sender);
+    public delegate void DataReceivedDelegate(int connectionIdentifier, byte[] receivedData);
+    public delegate void ConnectionClosedDelegate(int connectionIdentifier);
     #endregion
 
     #region Static properties
@@ -33,15 +33,21 @@ internal sealed class TcpConnectionHandler : FullDuplexTcpSocket
     protected override Socket Socket { get; }
 
     public readonly int ConnectionIdentifier;
-    public event DataReceivedDelegate? ReceivedDataEvent;
-    public event ConnectionClosedDelegate? ConnectionClosedEvent;
+    public DataReceivedDelegate? DataReceivedEvent;
+    public ConnectionClosedDelegate? ConnectionClosedEvent;
+
+    public bool IsActive    // Is false, when handled connection was closed, true otherwise.
+    {
+        get;
+        private set;
+    }
     #endregion
 
     #region Instantiation
     /// <summary>
     /// Initializes TCP connection handler.
     /// </summary>
-    /// <param name="clientSocket">
+    /// <param name="connectionSocket">
     /// Socket used to handle particular client connection.
     /// </param>
     /// <param name="receivingBufferSize">
@@ -60,20 +66,20 @@ internal sealed class TcpConnectionHandler : FullDuplexTcpSocket
     /// <exception cref="ArgumentException">
     /// Thrown, when at least one argument will be considered as invalid.
     /// </exception>
-    public TcpConnectionHandler(Socket clientSocket, int receivingBufferSize, IProtocol protocol, ICipher cipher)
+    public TcpConnectionHandler(Socket connectionSocket, int receivingBufferSize, IProtocol protocol, ICipher cipher)
         : base(receivingBufferSize, protocol, cipher)
     {
         #region Arguments validation
-        if (clientSocket is null)
+        if (connectionSocket is null)
         {
-            string argumentName = nameof(clientSocket);
+            string argumentName = nameof(connectionSocket);
             const string ErrorMessage = "Provided client socket is a null reference:";
             throw new ArgumentNullException(argumentName, ErrorMessage);
         }
 
-        if (!clientSocket.Connected)
+        if (!connectionSocket.Connected)
         {
-            string argumentName = nameof(clientSocket);
+            string argumentName = nameof(connectionSocket);
             const string ErrorMessage = "Provided client socket not connected:";
             throw new ArgumentException(ErrorMessage, argumentName);
         }
@@ -82,15 +88,16 @@ internal sealed class TcpConnectionHandler : FullDuplexTcpSocket
         _listeningForDataTask = null;
         _cancellationTokenSourceForDataListening = new CancellationTokenSource();
 
-        Socket = clientSocket;
+        Socket = connectionSocket;
 
         ConnectionIdentifier = s_nextConnectionIdentifier++;
+        IsActive = connectionSocket.Connected;
     }
     #endregion
 
     #region Interactions
     /// <summary>
-    /// Calls received data callback with connection identifier and data received from client.
+    /// Processes patches of data received from client site.
     /// </summary>
     /// <param name="receivedData">
     /// Chunk of data received from client site.
@@ -98,7 +105,7 @@ internal sealed class TcpConnectionHandler : FullDuplexTcpSocket
     /// <exception cref="ArgumentNullException">
     /// Thrown, when at least one reference-type argument is a null reference.
     /// </exception>
-    protected override void ProcessReceivedData(IEnumerable<byte> receivedData)
+    protected override void RaiseDataReceivedEvent(IEnumerable<byte> receivedData)
     {
         #region Arguments validation
         if (receivedData is null)
@@ -109,15 +116,16 @@ internal sealed class TcpConnectionHandler : FullDuplexTcpSocket
         }
         #endregion
 
-        ReceivedDataEvent?.Invoke(this, receivedData.ToArray());
+        DataReceivedEvent?.Invoke(ConnectionIdentifier, receivedData.ToArray());
     }
 
     /// <summary>
-    /// Calls connection closed callback as a reaction to closing connection by the client.
+    /// Reacts to situation, when client will close the connection.
     /// </summary>
-    protected override void ReactOnConnectionClose()
+    protected override void RaiseConnectionClosedEvent()
     {
-        ConnectionClosedEvent?.Invoke(this);
+        IsActive = false;   // Setting property value manually as value of Socket.Connected is still true.
+        ConnectionClosedEvent?.Invoke(ConnectionIdentifier);
     }
 
     /// <summary>
@@ -146,6 +154,8 @@ internal sealed class TcpConnectionHandler : FullDuplexTcpSocket
         }
 
         base.Dispose();
+
+        IsActive = Socket.Connected;
     }
     #endregion
 }

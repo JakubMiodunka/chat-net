@@ -1,5 +1,6 @@
 ﻿// Ignore Spelling: ip
 
+using CommonUtilities;
 using CommonUtilities.Ciphers;
 using CommonUtilities.Protocols;
 using System.Net;
@@ -20,7 +21,7 @@ namespace Server.Sockets;
 /// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.bind?view=net-9.0"/>
 /// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.listen?view=net-9.0"/>
 /// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.acceptasync?view=net-9.0"/>
-public sealed class ServerTcpSocket : IDisposable
+public sealed class ServerTcpSocket : TasksManager
 {
     #region Delegates
     public delegate void ConnectionAcceptedDelegate(int connectionIdentifier);
@@ -111,15 +112,19 @@ public sealed class ServerTcpSocket : IDisposable
 
     #region Interactions
     /// <summary>
-    /// Processes newly accepted connection.
+    /// Creates new handler for newly accepted connection and processes the event.
     /// </summary>
+    /// <remarks>
+    /// Additionally whenever this method is being invoked, inactive connection handlers are disposed.
+    /// It is simple yet effective mechanism of lazy-management of the pool.
+    /// </remarks>
     /// <param name="connectionSocket">
     /// Socket referring to newly accepted connection.
     /// </param>
     /// <exception cref="ArgumentNullException">
     /// Thrown, when at least one reference-type argument is a null reference.
     /// </exception>
-    private void ProcessAcceptedConnection(Socket connectionSocket)
+    private void RaiseConnectionAcceptedEvent(Socket connectionSocket)
     {
         #region Arguments validation
         if (connectionSocket is null)
@@ -131,12 +136,15 @@ public sealed class ServerTcpSocket : IDisposable
         #endregion
 
         var handler = new TcpConnectionHandler(connectionSocket, _receivingBufferSize, _protocol, _cipher);
-        handler.ReceivedDataEvent += (handler, receivedData) => DataReceivedEvent?.Invoke(handler.ConnectionIdentifier, receivedData);
-        handler.ConnectionClosedEvent += (handler) => { handler.Dispose(); lock(_connectionHandlers) { _connectionHandlers.Remove(handler); } };
-        handler.ConnectionClosedEvent += (handler) => ConnectionClosedEvent?.Invoke(handler.ConnectionIdentifier);
+        handler.DataReceivedEvent = (connectionIdentifier, receivedData) => DataReceivedEvent?.Invoke(connectionIdentifier, receivedData);
+        handler.ConnectionClosedEvent = (connectionIdentifier) => ConnectionClosedEvent?.Invoke(connectionIdentifier);
         
         lock(_connectionHandlers)
         {
+            List<TcpConnectionHandler> inactiveHandlers = _connectionHandlers.Where(handler => handler.IsActive).ToList();
+            inactiveHandlers.ForEach(handler => handler.Dispose());
+            inactiveHandlers.ForEach(handler => _connectionHandlers.Remove(handler));
+            
             _connectionHandlers.Add(handler);
         }
 
@@ -170,7 +178,8 @@ public sealed class ServerTcpSocket : IDisposable
             Socket connectionSocket = acceptNewConnectionTask.Result;
             acceptNewConnectionTask = null;
 
-            ProcessAcceptedConnection(connectionSocket);
+            Task connectionAcceptedEventTask = Task.Run(() => RaiseConnectionAcceptedEvent(connectionSocket));
+            AddTask(connectionAcceptedEventTask);
         }
     }
 
@@ -218,7 +227,6 @@ public sealed class ServerTcpSocket : IDisposable
         await handler.SentData(data);
     }
 
-    // TODO: Prepare test for this method.
     /// <summary>
     /// Closes connection with specified identifier.
     /// </summary>
@@ -263,25 +271,25 @@ public sealed class ServerTcpSocket : IDisposable
     /// to 'false') - it only listens for new connections and accepts them.
     /// For each connection new separate (and connected) socket is created to handle it individually.
     /// </remarks>
-    public void Dispose()
+    public override void Dispose()
     {
-        // Connection handlers list may be modified by events raised by handlers, so we need to operate on its copy.
-        List<TcpConnectionHandler> handlersCopy;
-
-        lock (_connectionHandlers)
-        {
-            handlersCopy = _connectionHandlers.ToList();
-        }
-
-        handlersCopy.ForEach(handler => handler.Dispose());
-
         if (_acceptingConnectionsTask is not null)
         {
             _cancellationTokenSourceForAcceptingConnections.Cancel();
             _acceptingConnectionsTask.Wait();
+
+            _acceptingConnectionsTask = null;
         }
 
         _listeningSocket.Close();   // Calls Socket.Dispose() internally.
+
+        lock (_connectionHandlers)
+        {
+            _connectionHandlers.ForEach(handler => handler.Dispose());
+            _connectionHandlers.Clear();
+        }
+
+        base.Dispose();
     }
     #endregion
 }

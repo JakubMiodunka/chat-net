@@ -77,7 +77,7 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
 
     #region Interactions
     /// <summary>
-    /// Calls received data callback with data received from server site to process it further.
+    /// Processes patches of data received from server site.
     /// </summary>
     /// <param name="receivedData">
     /// Chunk of data received from server site.
@@ -85,7 +85,7 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
     /// <exception cref="ArgumentNullException">
     /// Thrown, when at least one reference-type argument is a null reference.
     /// </exception>
-    protected override void ProcessReceivedData(IEnumerable<byte> receivedData)
+    protected override void RaiseDataReceivedEvent(IEnumerable<byte> receivedData)
     {
         #region Arguments validation
         if (receivedData is null)
@@ -100,9 +100,9 @@ public sealed class ClientTcpSocket : FullDuplexTcpSocket
     }
 
     /// <summary>
-    /// Calls connection closed callback as a reaction to closing connection by the server.
+    /// Reacts to situation, when server will close the connection.
     /// </summary>
-    protected override void ReactOnConnectionClose()
+    protected override void RaiseConnectionClosedEvent()
     {
         ConnectionClosedEvent?.Invoke();
     }
