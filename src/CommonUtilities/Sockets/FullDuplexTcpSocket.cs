@@ -44,7 +44,7 @@ public abstract class FullDuplexTcpSocket : TasksManager
     /// <exception cref="ArgumentNullException">
     /// Thrown, when at least one reference-type argument is a null reference.
     /// </exception>
-    protected FullDuplexTcpSocket(int receivingBufferSize, IProtocol protocol, ICipher cipher)
+    protected FullDuplexTcpSocket(int receivingBufferSize, IProtocol protocol, ICipher cipher) : base()
     {
         #region Arguments validation
         if (receivingBufferSize < 1)

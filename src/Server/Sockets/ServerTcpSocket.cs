@@ -66,7 +66,7 @@ public sealed class ServerTcpSocket : TasksManager
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown, when value of at least one argument will be considered as invalid.
     /// </exception>
-    public ServerTcpSocket(IPEndPoint ipEndPoint, int receivingBufferSize, IProtocol protocol, ICipher cipher)
+    public ServerTcpSocket(IPEndPoint ipEndPoint, int receivingBufferSize, IProtocol protocol, ICipher cipher) : base()
     {
         #region Arguments validation
         if (ipEndPoint is null)
