@@ -42,7 +42,7 @@ public sealed class ClientRequestHandler
         return new AuthenticateRespond(IsAccessGranted: true);
     }
 
-    private PutMessagesRespond ProcessGetMessagesRequest(int connectionIdentifier, GetMessagesRequest request)
+    private PutMessagesRequest ProcessGetMessagesRequest(int connectionIdentifier, GetMessagesRequest request)
     {
         throw new NotImplementedException();
     }

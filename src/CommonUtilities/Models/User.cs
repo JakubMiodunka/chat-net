@@ -4,6 +4,9 @@
 /// Model of application user.
 /// </summary>
 /// <param name="Name">
-/// Unique name of a user.
+/// Unique user identifier.
 /// </param>
-public sealed record User(string Name);
+/// <param name="Name">
+/// Name of a user. Uniqueness is not necessary.
+/// </param>
+public sealed record User(int Id, string Name);

@@ -6,4 +6,4 @@
 /// <param name="Messages">
 /// Messages, which shall be included in request content.
 /// </param>
-public sealed record PutMessagesRespond(Message[] Messages) : Request;
+public sealed record PutMessagesRequest(Message[] Messages) : Request;
