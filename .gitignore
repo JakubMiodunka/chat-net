@@ -11,6 +11,9 @@ src/Client/obj/
 src/Server/bin/
 src/Server/obj/
 
+src/Database/bin/
+src/Database/obj/
+
 src/UnitTests/bin/
 src/UnitTests/obj/
 
