@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['ibitpaddingprovider_0',['IBitPaddingProvider',['../interface_common_utilities_1_1_padding_1_1_i_bit_padding_provider.html',1,'CommonUtilities::Padding']]],
-  ['icipher_1',['ICipher',['../interface_common_utilities_1_1_ciphers_1_1_i_cipher.html',1,'CommonUtilities::Ciphers']]],
-  ['iprotocol_2',['IProtocol',['../interface_common_utilities_1_1_protocols_1_1_i_protocol.html',1,'CommonUtilities::Protocols']]]
+  ['getmessagessentby_0',['GetMessagesSentBy',['../class_server_1_1_database_client.html#ac8e4dc77dc230d1bd31076de8649ce46',1,'Server::DatabaseClient']]],
+  ['getmessagessentto_1',['GetMessagesSentTo',['../class_server_1_1_database_client.html#a21f0eef46edcfd67372619e3b493848e',1,'Server::DatabaseClient']]],
+  ['getpasswordhashfor_2',['GetPasswordHashFor',['../class_server_1_1_database_client.html#a9f7245ea691d5b76942763a08d67bd9c',1,'Server::DatabaseClient']]],
+  ['getuser_3',['GetUser',['../class_server_1_1_database_client.html#af1dfcd465292b7a09fcb7b896728cb82',1,'Server::DatabaseClient']]]
 ];

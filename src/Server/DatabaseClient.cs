@@ -1,4 +1,6 @@
-﻿using CommonUtilities.Models;
+﻿// Ignore Spelling: Timestamp
+
+using CommonUtilities.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using System.Data;
@@ -53,7 +55,7 @@ public sealed class DatabaseClient
     /// <returns>
     /// Opened connection to database.
     /// </returns>
-    private IDbConnection OpenConnection()
+    private SqlConnection OpenConnection()
     {
         var sqliteCOnnection = new SqlConnection(_connectionString);
         sqliteCOnnection.Open();

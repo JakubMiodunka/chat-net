@@ -102,8 +102,11 @@ $(function(){ initResizable(false); });
 Inheritance diagram for Server.Sockets.ServerTcpSocket:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="class_server_1_1_sockets_1_1_server_tcp_socket.png" alt=""/>
- </div></div>
+  <img src="class_server_1_1_sockets_1_1_server_tcp_socket.png" usemap="#Server.Sockets.ServerTcpSocket_map" alt=""/>
+  <map id="Server.Sockets.ServerTcpSocket_map" name="Server.Sockets.ServerTcpSocket_map">
+<area href="class_common_utilities_1_1_tasks_manager.html" title="Provides thread-safe mechanism for effective management of tasks pool." alt="CommonUtilities.TasksManager" shape="rect" coords="0,56,201,80"/>
+  </map>
+</div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -119,15 +122,20 @@ delegate void&#160;</td><td class="memItemRight" valign="bottom"><b>ConnectionCl
 <tr class="memitem:ade7c310e0ff5173ac97a265647afd729" id="r_ade7c310e0ff5173ac97a265647afd729"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ade7c310e0ff5173ac97a265647afd729">ServerTcpSocket</a> (IPEndPoint ipEndPoint, int receivingBufferSize, <a class="el" href="interface_common_utilities_1_1_protocols_1_1_i_protocol.html">IProtocol</a> protocol, <a class="el" href="interface_common_utilities_1_1_ciphers_1_1_i_cipher.html">ICipher</a> cipher)</td></tr>
 <tr class="memdesc:ade7c310e0ff5173ac97a265647afd729"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes server TCP socket.  <br /></td></tr>
 <tr class="separator:ade7c310e0ff5173ac97a265647afd729"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc288bf5f3ba22674a229274e39a11a1" id="r_afc288bf5f3ba22674a229274e39a11a1"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afc288bf5f3ba22674a229274e39a11a1">StartAcceptingConnections</a> ()</td></tr>
-<tr class="memdesc:afc288bf5f3ba22674a229274e39a11a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Triggers continues process of listening and accepting new connections on listening socket.  <br /></td></tr>
-<tr class="separator:afc288bf5f3ba22674a229274e39a11a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d2b601606f50d7be61c85aa78203514" id="r_a6d2b601606f50d7be61c85aa78203514"><td class="memItemLeft" align="right" valign="top"><a id="a6d2b601606f50d7be61c85aa78203514" name="a6d2b601606f50d7be61c85aa78203514"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>StartAcceptingConnections</b> ()</td></tr>
+<tr class="memdesc:a6d2b601606f50d7be61c85aa78203514"><td class="mdescLeft">&#160;</td><td class="mdescRight">Triggers continues process of listening and accepting new connections on listening socket. <br /></td></tr>
+<tr class="separator:a6d2b601606f50d7be61c85aa78203514"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a696e5b2b8ef6ddf88c6d488695035912" id="r_a696e5b2b8ef6ddf88c6d488695035912"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a696e5b2b8ef6ddf88c6d488695035912">SentData</a> (int connectionIdentifier, IEnumerable&lt; byte &gt; data)</td></tr>
 <tr class="memdesc:a696e5b2b8ef6ddf88c6d488695035912"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends provided data to specified connection.  <br /></td></tr>
 <tr class="separator:a696e5b2b8ef6ddf88c6d488695035912"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad38864872aad9f7613aa26fbd09d0ad3" id="r_ad38864872aad9f7613aa26fbd09d0ad3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad38864872aad9f7613aa26fbd09d0ad3">Dispose</a> ()</td></tr>
-<tr class="memdesc:ad38864872aad9f7613aa26fbd09d0ad3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Suppresses accepting new connections, disposes all connection handlers along with listening socket.  <br /></td></tr>
-<tr class="separator:ad38864872aad9f7613aa26fbd09d0ad3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a963ce5a53edd50dd9c79fec381fa582e" id="r_a963ce5a53edd50dd9c79fec381fa582e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a963ce5a53edd50dd9c79fec381fa582e">CloseConnection</a> (int connectionIdentifier)</td></tr>
+<tr class="memdesc:a963ce5a53edd50dd9c79fec381fa582e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes connection with specified identifier.  <br /></td></tr>
+<tr class="separator:a963ce5a53edd50dd9c79fec381fa582e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02dc2b7ec18547492cfe7172f616ca22" id="r_a02dc2b7ec18547492cfe7172f616ca22"><td class="memItemLeft" align="right" valign="top">override void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a02dc2b7ec18547492cfe7172f616ca22">Dispose</a> ()</td></tr>
+<tr class="memdesc:a02dc2b7ec18547492cfe7172f616ca22"><td class="mdescLeft">&#160;</td><td class="mdescRight">Suppresses accepting new connections, disposes all connection handlers along with listening socket.  <br /></td></tr>
+<tr class="separator:a02dc2b7ec18547492cfe7172f616ca22"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_class_common_utilities_1_1_tasks_manager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_class_common_utilities_1_1_tasks_manager')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_common_utilities_1_1_tasks_manager.html">CommonUtilities.TasksManager</a></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="events" name="events"></a>
 Events</h2></td></tr>
@@ -140,9 +148,17 @@ DataReceivedDelegate?&#160;</td><td class="memItemRight" valign="bottom"><b>Data
 <tr class="memitem:aa32f36419f4ecfcdec10064d8045fc83" id="r_aa32f36419f4ecfcdec10064d8045fc83"><td class="memItemLeft" align="right" valign="top"><a id="aa32f36419f4ecfcdec10064d8045fc83" name="aa32f36419f4ecfcdec10064d8045fc83"></a>
 ConnectionClosedDelegate?&#160;</td><td class="memItemRight" valign="bottom"><b>ConnectionClosedEvent</b></td></tr>
 <tr class="separator:aa32f36419f4ecfcdec10064d8045fc83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pro_methods_class_common_utilities_1_1_tasks_manager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_methods_class_common_utilities_1_1_tasks_manager')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="class_common_utilities_1_1_tasks_manager.html">CommonUtilities.TasksManager</a></td></tr>
+<tr class="memitem:ac8fdeaa3781c758dd8e053158d3eef35 inherit pro_methods_class_common_utilities_1_1_tasks_manager" id="r_ac8fdeaa3781c758dd8e053158d3eef35"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_common_utilities_1_1_tasks_manager.html#ac8fdeaa3781c758dd8e053158d3eef35">AddTask</a> (Task task)</td></tr>
+<tr class="memdesc:ac8fdeaa3781c758dd8e053158d3eef35 inherit pro_methods_class_common_utilities_1_1_tasks_manager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds provided task to pool of managed tasks.  <br /></td></tr>
+<tr class="separator:ac8fdeaa3781c758dd8e053158d3eef35 inherit pro_methods_class_common_utilities_1_1_tasks_manager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Socket wrapper, which serves as a server in TCP client-server architecture. </p>
+<p>To get it to operational state properly, first instantiate the class member, then assign events handlers and finally call <a class="el" href="#a6d2b601606f50d7be61c85aa78203514" title="Triggers continues process of listening and accepting new connections on listening socket.">StartAcceptingConnections()</a> method to start accepting new clients. Do not forget to dispose created instance, when it will be no longer needed. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ade7c310e0ff5173ac97a265647afd729" name="ade7c310e0ff5173ac97a265647afd729"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ade7c310e0ff5173ac97a265647afd729">&#9670;&#160;</a></span>ServerTcpSocket()</h2>
@@ -194,23 +210,64 @@ ConnectionClosedDelegate?&#160;</td><td class="memItemRight" valign="bottom"><b>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="ad38864872aad9f7613aa26fbd09d0ad3" name="ad38864872aad9f7613aa26fbd09d0ad3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad38864872aad9f7613aa26fbd09d0ad3">&#9670;&#160;</a></span>Dispose()</h2>
+<a id="a963ce5a53edd50dd9c79fec381fa582e" name="a963ce5a53edd50dd9c79fec381fa582e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a963ce5a53edd50dd9c79fec381fa582e">&#9670;&#160;</a></span>CloseConnection()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void Server.Sockets.ServerTcpSocket.Dispose </td>
+          <td class="memname">void Server.Sockets.ServerTcpSocket.CloseConnection </td>
           <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>connectionIdentifier</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
+<p>Closes connection with specified identifier. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">connectionIdentifier</td><td>Identifier of connection, which shall be closed. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">ArgumentOutOfRangeException</td><td>Thrown, when value of at least one argument will be considered as invalid. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a02dc2b7ec18547492cfe7172f616ca22" name="a02dc2b7ec18547492cfe7172f616ca22"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02dc2b7ec18547492cfe7172f616ca22">&#9670;&#160;</a></span>Dispose()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">override void Server.Sockets.ServerTcpSocket.Dispose </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
 <p>Suppresses accepting new connections, disposes all connection handlers along with listening socket. </p>
 <p>Calling Socket.Shutdown method is not necessary here (and will cause throwing an exception) as listening socket on server site is not connected (Socket.Connected property value is set to 'false') - it only listens for new connections and accepts them. For each connection new separate (and connected) socket is created to handle it individually. </p>
+
+<p>Reimplemented from <a class="el" href="class_common_utilities_1_1_tasks_manager.html#a4b28a4e666969114f3df4f187354e0a0">CommonUtilities.TasksManager</a>.</p>
 
 </div>
 </div>
@@ -248,26 +305,6 @@ ConnectionClosedDelegate?&#160;</td><td class="memItemRight" valign="bottom"><b>
   </table>
   </dd>
 </dl>
-
-</div>
-</div>
-<a id="afc288bf5f3ba22674a229274e39a11a1" name="afc288bf5f3ba22674a229274e39a11a1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afc288bf5f3ba22674a229274e39a11a1">&#9670;&#160;</a></span>StartAcceptingConnections()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">async Task Server.Sockets.ServerTcpSocket.StartAcceptingConnections </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Triggers continues process of listening and accepting new connections on listening socket. </p>
-<dl class="section return"><dt>Returns</dt><dd>Task related to listening and accepting new connections on listening socket. </dd></dl>
 
 </div>
 </div>

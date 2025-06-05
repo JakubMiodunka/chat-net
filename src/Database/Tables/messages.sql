@@ -4,7 +4,7 @@
 		sender_id INT NOT NULL,
 		receiver_id INT NOT NULL,
 		content VARCHAR(1024) NOT NULL,
-		CONSTRAINT pk_messages PRIMARY KEY(Id),
+		CONSTRAINT pk_messages PRIMARY KEY(id),
 		CONSTRAINT fk_messages_sender_id FOREIGN KEY(sender_id) REFERENCES users(id),
 		CONSTRAINT fk_messages_receiver_id FOREIGN KEY(receiver_id) REFERENCES users(id)
 	)

@@ -51,7 +51,7 @@ public sealed class PkcsBitPaddingProviderTests
     {
         var instanceUnderTest = new PkcsBitPaddingProvider(DefaultDataBlockSize);
 
-        TestDelegate actionUnderTest = () => instanceUnderTest.AddBitPadding(null);
+        TestDelegate actionUnderTest = () => instanceUnderTest.AddBitPadding(null!);
 
         Assert.Throws<ArgumentNullException>(actionUnderTest);
     }
@@ -75,7 +75,7 @@ public sealed class PkcsBitPaddingProviderTests
     {
         var instanceUnderTest = new PkcsBitPaddingProvider(DefaultDataBlockSize);
 
-        TestDelegate actionUnderTest = () => instanceUnderTest.RemoveBitPadding(null);
+        TestDelegate actionUnderTest = () => instanceUnderTest.RemoveBitPadding(null!);
 
         Assert.Throws<ArgumentNullException>(actionUnderTest);
     }

@@ -48,7 +48,7 @@ public sealed class TeaCipherTests
     {
         Mock<IBitPaddingProvider> bitPaddingProviderStub = CreateTransparentBitPaddingProviderFake();
 
-        TestDelegate actionUnderTest = () => new TeaCipher(null, bitPaddingProviderStub.Object);
+        TestDelegate actionUnderTest = () => new TeaCipher(null!, bitPaddingProviderStub.Object);
 
         Assert.Throws<ArgumentNullException>(actionUnderTest);
     }
@@ -73,7 +73,7 @@ public sealed class TeaCipherTests
         var encryptionKey = new byte[ValidSizeOfEncryptionKey];
         s_randomNumberGenerator.NextBytes(encryptionKey);
 
-        TestDelegate actionUnderTest = () => new TeaCipher(encryptionKey, null);
+        TestDelegate actionUnderTest = () => new TeaCipher(encryptionKey, null!);
 
         Assert.Throws<ArgumentNullException>(actionUnderTest);
     }
@@ -105,7 +105,7 @@ public sealed class TeaCipherTests
 
         var instanceUnderTest = new TeaCipher(encryptionKey, bitPaddingProviderStub.Object);
 
-        TestDelegate actionUnderTest = () => instanceUnderTest.Encrypt(null);
+        TestDelegate actionUnderTest = () => instanceUnderTest.Encrypt(null!);
 
         Assert.Throws<ArgumentNullException>(actionUnderTest);
     }
@@ -120,7 +120,7 @@ public sealed class TeaCipherTests
 
         var instanceUnderTest = new TeaCipher(encryptionKey, bitPaddingProviderStub.Object);
 
-        TestDelegate actionUnderTest = () => instanceUnderTest.Decrypt(null);
+        TestDelegate actionUnderTest = () => instanceUnderTest.Decrypt(null!);
 
         Assert.Throws<ArgumentNullException>(actionUnderTest);
     }

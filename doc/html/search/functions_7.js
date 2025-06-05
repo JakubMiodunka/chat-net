@@ -1,8 +1,6 @@
 var searchData=
 [
-  ['sentdata_0',['SentData',['../class_common_utilities_1_1_sockets_1_1_full_duplex_tcp_socket.html#a6d4a913b6cea3de2fdb8c36b6433e9e2',1,'CommonUtilities.Sockets.FullDuplexTcpSocket.SentData()'],['../class_server_1_1_sockets_1_1_server_tcp_socket.html#a696e5b2b8ef6ddf88c6d488695035912',1,'Server.Sockets.ServerTcpSocket.SentData(int connectionIdentifier, IEnumerable&lt; byte &gt; data)']]],
-  ['servertcpsocket_1',['ServerTcpSocket',['../class_server_1_1_sockets_1_1_server_tcp_socket.html#ade7c310e0ff5173ac97a265647afd729',1,'Server::Sockets::ServerTcpSocket']]],
-  ['simplesessionlayerprotocol_2',['SimpleSessionLayerProtocol',['../class_common_utilities_1_1_protocols_1_1_simple_session_layer_protocol.html#a4ce5110929eb7fa7cab3bd80553c7600',1,'CommonUtilities::Protocols::SimpleSessionLayerProtocol']]],
-  ['startacceptingconnections_3',['StartAcceptingConnections',['../class_server_1_1_sockets_1_1_server_tcp_socket.html#afc288bf5f3ba22674a229274e39a11a1',1,'Server::Sockets::ServerTcpSocket']]],
-  ['startlisteningfordata_4',['StartListeningForData',['../class_common_utilities_1_1_sockets_1_1_full_duplex_tcp_socket.html#abaac704f03756daee7e70a396a22dedc',1,'CommonUtilities::Sockets::FullDuplexTcpSocket']]]
+  ['pkcsbitpaddingprovider_0',['PkcsBitPaddingProvider',['../class_common_utilities_1_1_bit_padding_1_1_pkcs_bit_padding_provider.html#a1def240c48db4cc356cd8908abe76760',1,'CommonUtilities::BitPadding::PkcsBitPaddingProvider']]],
+  ['preparepacket_1',['PreparePacket',['../interface_common_utilities_1_1_protocols_1_1_i_protocol.html#a3515ed435b0bfe57d4d75985e2c61133',1,'CommonUtilities.Protocols.IProtocol.PreparePacket()'],['../class_common_utilities_1_1_protocols_1_1_simple_session_layer_protocol.html#a43d2fbee4cc31a4ac2238c00dd172a48',1,'CommonUtilities.Protocols.SimpleSessionLayerProtocol.PreparePacket()']]],
+  ['putmessage_2',['PutMessage',['../class_server_1_1_database_client.html#a8d772f080cbb4ca83443a8ba2b98764d',1,'Server::DatabaseClient']]]
 ];

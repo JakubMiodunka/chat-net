@@ -1,4 +1,6 @@
-﻿using Client.Sockets;
+﻿// Ignore Spelling: Ip
+
+using Client.Sockets;
 using CommonUtilities.Ciphers;
 using CommonUtilities.Protocols;
 using Moq;
@@ -35,7 +37,7 @@ public class ClientTcpSocketTests
         var cipherStub = new Mock<ICipher>();
 
         TestDelegate actionUnderTest =
-            () => { using (var clientTcpSocket = new ClientTcpSocket(null, DefaultReceivingBufferSize, protocolStub.Object, cipherStub.Object)); };
+            () => { using var clientTcpSocket = new ClientTcpSocket(null!, DefaultReceivingBufferSize, protocolStub.Object, cipherStub.Object); };
 
         Assert.Throws<ArgumentNullException>(actionUnderTest);
     }
@@ -46,7 +48,7 @@ public class ClientTcpSocketTests
         var cipherStub = new Mock<ICipher>();
 
         TestDelegate actionUnderTest =
-            () => { using (var clientTcpSocket = new ClientTcpSocket(_defaultServerIpEndPoint, DefaultReceivingBufferSize, null, cipherStub.Object)) ; };
+            () => { using (var clientTcpSocket = new ClientTcpSocket(_defaultServerIpEndPoint, DefaultReceivingBufferSize, null!, cipherStub.Object)) { } };
 
         Assert.Throws<ArgumentNullException>(actionUnderTest);
     }
@@ -57,7 +59,7 @@ public class ClientTcpSocketTests
         var protocolStub = new Mock<IProtocol>();
 
         TestDelegate actionUnderTest =
-            () => { using (var clientTcpSocket = new ClientTcpSocket(_defaultServerIpEndPoint, DefaultReceivingBufferSize, protocolStub.Object, null)); };
+            () => { using var clientTcpSocket = new ClientTcpSocket(_defaultServerIpEndPoint, DefaultReceivingBufferSize, protocolStub.Object, null!); };
 
         Assert.Throws<ArgumentNullException>(actionUnderTest);
     }
@@ -70,7 +72,7 @@ public class ClientTcpSocketTests
         var cipherStub = new Mock<ICipher>();
 
         TestDelegate actionUnderTest =
-            () => { using (var clientTcpSocket = new ClientTcpSocket(_defaultServerIpEndPoint, invalidReceivingBufferSize, protocolStub.Object, cipherStub.Object)); };
+            () => { using var clientTcpSocket = new ClientTcpSocket(_defaultServerIpEndPoint, invalidReceivingBufferSize, protocolStub.Object, cipherStub.Object); };
 
         Assert.Throws<ArgumentOutOfRangeException>(actionUnderTest);
     }
@@ -83,7 +85,7 @@ public class ClientTcpSocketTests
         var cipherStub = new Mock<ICipher>();
 
         TestDelegate actionUnderTest =
-            () => { using (var clientTcpSocket = new ClientTcpSocket(_defaultServerIpEndPoint, validReceivingBufferSize, protocolStub.Object, cipherStub.Object)); };
+            () => { using var clientTcpSocket = new ClientTcpSocket(_defaultServerIpEndPoint, validReceivingBufferSize, protocolStub.Object, cipherStub.Object); };
 
         Assert.DoesNotThrow(actionUnderTest);
     }

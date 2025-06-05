@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['teacipher_0',['TeaCipher',['../class_common_utilities_1_1_ciphers_1_1_tea_cipher.html#a705d9bc32df289f892e451b45d775aea',1,'CommonUtilities::Ciphers::TeaCipher']]]
+  ['raiseconnectionclosedevent_0',['RaiseConnectionClosedEvent',['../class_client_1_1_sockets_1_1_client_tcp_socket.html#aed5694bfec23bc509e4baf48411fd372',1,'Client.Sockets.ClientTcpSocket.RaiseConnectionClosedEvent()'],['../class_common_utilities_1_1_sockets_1_1_full_duplex_tcp_socket.html#a5d419bbae2222d8b44c5b1af28eeeaeb',1,'CommonUtilities.Sockets.FullDuplexTcpSocket.RaiseConnectionClosedEvent()']]],
+  ['raisedatareceivedevent_1',['RaiseDataReceivedEvent',['../class_client_1_1_sockets_1_1_client_tcp_socket.html#a5041d96bdfad9761768b7964edd184f0',1,'Client.Sockets.ClientTcpSocket.RaiseDataReceivedEvent()'],['../class_common_utilities_1_1_sockets_1_1_full_duplex_tcp_socket.html#a8af8cee749487dacb1dcb7818eb58c27',1,'CommonUtilities.Sockets.FullDuplexTcpSocket.RaiseDataReceivedEvent()']]],
+  ['removebitpadding_2',['RemoveBitPadding',['../interface_common_utilities_1_1_padding_1_1_i_bit_padding_provider.html#ae72dbe548c89e58a321b8db48784b3d2',1,'CommonUtilities.Padding.IBitPaddingProvider.RemoveBitPadding()'],['../class_common_utilities_1_1_bit_padding_1_1_pkcs_bit_padding_provider.html#aa2daeddb1b2a73d6bfd241768c20a064',1,'CommonUtilities.BitPadding.PkcsBitPaddingProvider.RemoveBitPadding()']]]
 ];

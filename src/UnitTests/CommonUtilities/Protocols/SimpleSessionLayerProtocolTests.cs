@@ -55,7 +55,7 @@ public sealed class SimpleSessionLayerProtocolTests
     {
         var protocol = new SimpleSessionLayerProtocol(DefaultHeaderLength);
 
-        TestDelegate actionUnderTest = () => protocol.PreparePacket(null);
+        TestDelegate actionUnderTest = () => protocol.PreparePacket(null!);
 
         Assert.Throws<ArgumentNullException>(actionUnderTest);
     }
@@ -119,7 +119,7 @@ public sealed class SimpleSessionLayerProtocolTests
     {
         var protocol = new SimpleSessionLayerProtocol(DefaultHeaderLength);
 
-        TestDelegate actionUnderTest = () => protocol.ExtractPayload(null);
+        TestDelegate actionUnderTest = () => protocol.ExtractPayload(null!);
 
         Assert.Throws<ArgumentNullException>(actionUnderTest);
     }
@@ -132,7 +132,7 @@ public sealed class SimpleSessionLayerProtocolTests
         byte[] header = Enumerable.Range(0, DefaultHeaderLength).Select(value => byte.MaxValue).ToArray();
         packet.AddRange(header);
 
-        var payload = new byte[0];
+        var payload = Array.Empty<byte>();
         packet.AddRange(payload);
 
         var protocol = new SimpleSessionLayerProtocol(DefaultHeaderLength);
