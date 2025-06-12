@@ -37,7 +37,9 @@ public sealed class ServerTcpSocket : TasksManager
     private readonly List<TcpConnectionHandler> _connectionHandlers;
     private Task? _acceptingConnectionsTask;
     private readonly CancellationTokenSource _cancellationTokenSourceForAcceptingConnections;
+    #endregion
 
+    #region Events
     public event ConnectionAcceptedDelegate? ConnectionAcceptedEvent;
     public event DataReceivedDelegate? DataReceivedEvent;
     public event ConnectionClosedDelegate? ConnectionClosedEvent;
