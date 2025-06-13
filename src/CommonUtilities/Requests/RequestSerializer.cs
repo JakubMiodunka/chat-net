@@ -5,58 +5,130 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
+
 namespace CommonUtilities.Requests;
 
-// TODO: Add doc-strings.
-// TODO: Add unit tests.
+/// <summary>
+/// Utility, which is able to serialize requests instances to sequences of bytes
+/// and deserialize those back to their original form.
+/// </summary>
 public static class RequestSerializer
 {
-    #region Constants
-    // TODO: Add requests patters here.
-    private const string GetAuthenticationRequestPattern = @"";
-    private const string PutAuthenticationRequestPattern = @"";
-    private const string GetMessagesRequestPattern = @"";
-    private const string PutMessagesRequestPattern = @"";
-    private const string GetUsersRequestPattern = @"";
-    private const string PutUsersRequestPattern = @"";
+    #region Static properties
+    private static Dictionary<Type, Regex>? s_requestTypeToRegexMappingCache;
+    private static Dictionary<Type, Regex> s_requestTypeToRegexMapping
+    {
+        get
+        {
+            return s_requestTypeToRegexMappingCache ??= GenerateRequestTypeToRegexMapping();
+        }
+    }
     #endregion
 
-    #region Static properties
-    private static readonly Dictionary<Type, Regex> _requestPatternMapping  = new Dictionary<Type, Regex>
+    #region Static methods
+    private static Dictionary<Type, Regex> GenerateRequestTypeToRegexMapping()
+    {
+        Type[] requestTypes = {
+            typeof(GetAuthenticationRequest),
+            typeof(PutAuthenticationRequest),
+            typeof(GetMessagesRequest),
+            typeof(PutMessagesRequest),
+            typeof(GetUsersRequest),
+            typeof(PutUsersRequest)};
+
+        var requestTypeToRegexMapping = new Dictionary<Type, Regex>();
+
+        foreach (Type type in requestTypes)
         {
-            { typeof(GetAuthenticationRequest), new Regex(GetAuthenticationRequestPattern) },
-            { typeof(PutAuthenticationRequest), new Regex(PutAuthenticationRequestPattern) },
-            { typeof(GetMessagesRequest), new Regex(GetMessagesRequestPattern) },
-            { typeof(PutMessagesRequest), new Regex(PutMessagesRequestPattern) },
-            { typeof(GetUsersRequest), new Regex(GetUsersRequestPattern) },
-            { typeof(PutUsersRequest), new Regex(PutUsersRequestPattern) }
-        };
+            var regex = new Regex($"^.*\"Type\":\"{type.Name}\".*$");
+            requestTypeToRegexMapping.Add(type, regex);
+        }
+
+        return requestTypeToRegexMapping;
+    }
     #endregion
 
     #region Interactions
+    /// <summary>
+    /// Serializes provided request to sequence of bytes.
+    /// </summary>
+    /// <typeparam name="TRequest">
+    /// Type of request, which is requested to be serialized.
+    /// </typeparam>
+    /// <param name="request">
+    /// Request, which shall be serialized.
+    /// </param>
+    /// <returns>
+    /// Sequence of bytes corresponding to provided request.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown, when at least one reference-type argument is a null reference.
+    /// </exception>
     public static byte[] Serialize<TRequest>(TRequest request) where TRequest : Request
     {
+        #region Arguments validation
+        if (request is null)
+        {
+            string argumentName = nameof(request);
+            const string ErrorMessage = "Provided request is a null reference:";
+            throw new ArgumentNullException(argumentName, ErrorMessage);
+        }
+        #endregion
+
         string requestAsJsonString = JsonSerializer.Serialize(request);
         byte[] requestAsBytes = Encoding.UTF8.GetBytes(requestAsJsonString);
 
         return requestAsBytes;
     }
-    public static Request Deserialize(IEnumerable<byte> receivedData)
+
+    /// <summary>
+    /// Deserializes sequence of bytes to an request instance.
+    /// </summary>
+    /// <param name="bytes">
+    /// Sequence of bytes, which shall be deserialized into request instance.
+    /// </param>
+    /// <returns>
+    /// Request corresponding to provided sequence of bytes.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown, when at least one reference-type argument is a null reference.
+    /// </exception>
+    /// <exception cref="NotSupportedException">
+    /// Thrown, when provided byte sequence cannot be deserialized to request instance.
+    /// </exception>
+    public static Request Deserialize(IEnumerable<byte> bytes)
     {
-        string requestAsJsonString = Encoding.UTF8.GetString(receivedData.ToArray());
-
-        Request? request = null;
-
-        lock (_requestPatternMapping)
+        #region Arguments validation
+        if (bytes is null)
         {
-            foreach (KeyValuePair<Type, Regex> mapping in _requestPatternMapping)
+            string argumentName = nameof(bytes);
+            const string ErrorMessage = "Provided byte sequence is a null reference:";
+            throw new ArgumentNullException(argumentName, ErrorMessage);
+        }
+        #endregion
+
+        string requestAsJsonString;
+
+        try
+        {
+            requestAsJsonString = Encoding.UTF8.GetString(bytes.ToArray());
+        }
+        catch (DecoderFallbackException exception)
+        {
+            string decodingErrorMessage = $"Unable to decode provided byte sequence: {bytes}";
+            throw new NotSupportedException(decodingErrorMessage, exception);
+        }
+
+        lock (s_requestTypeToRegexMapping)
+        {
+            foreach (KeyValuePair<Type, Regex> mapping in s_requestTypeToRegexMapping)
             {
                 Type requestType = mapping.Key;
                 Regex requestPattern = mapping.Value;
 
                 if (requestPattern.IsMatch(requestAsJsonString))
                 {
-                    request = JsonSerializer.Deserialize(requestAsJsonString, requestType) as Request;
+                    Request? request = JsonSerializer.Deserialize(requestAsJsonString, requestType) as Request;
 
                     if (request is not null)
                     {
@@ -66,8 +138,8 @@ public static class RequestSerializer
             }
         }
 
-        string errorMessage = $"Unable to deserialize provided JSON string: {requestAsJsonString}";
-        throw new NotSupportedException(errorMessage);
+        string jsonDeserializationErrorMessage = $"Unable to deserialize decoded JSON string: {requestAsJsonString}";
+        throw new NotSupportedException(jsonDeserializationErrorMessage);
     }
     #endregion
 }
