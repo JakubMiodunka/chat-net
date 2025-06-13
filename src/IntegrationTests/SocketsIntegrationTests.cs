@@ -2,6 +2,7 @@
 using CommonUtilities.BitPadding;
 using CommonUtilities.Ciphers;
 using CommonUtilities.Protocols;
+using NUnit.Framework.Internal;
 using Server.Sockets;
 using System.Net;
 
@@ -19,8 +20,6 @@ public class SocketsIntegrationTests
     #endregion
 
     #region Auxiliary properties
-    private static readonly Random s_randomNumberGenerator = new Random();
-
     private ServerTcpSocket _server;
     private List<ClientTcpSocket> _clients;
     #endregion
@@ -87,7 +86,7 @@ public class SocketsIntegrationTests
     [Test]
     public void ServerAcceptsClients(
         [Values(1, 2, 40)] int numberOfClients,
-        [Values(250)] int eventsTimeout)
+        [Values(250)] int eventsTimeout)    // Expressed in milliseconds.
     {
         int acceptedConnections = 0;
         _server.ConnectionAcceptedEvent += (_) => acceptedConnections++;
@@ -108,7 +107,7 @@ public class SocketsIntegrationTests
     [Test]
     public void ServerTransfersDataToClient(
         [Values(10)] int dataLength,
-        [Values(250)] int eventsTimeout)
+        [Values(250)] int eventsTimeout)    // Expressed in milliseconds.
     {
         int connectionIdentifier = 0;
         _server.ConnectionAcceptedEvent += (identifier) => connectionIdentifier = identifier;
@@ -123,8 +122,10 @@ public class SocketsIntegrationTests
         clientSocket.ConnectToServer();
         Task.Delay(eventsTimeout).Wait();    // Time required to process ConnectionAcceptedEvent by the server.
 
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var sentData = new byte[dataLength];
-        s_randomNumberGenerator.NextBytes(sentData);
+        randomizer.NextBytes(sentData);
 
         _server.SentData(connectionIdentifier, sentData).Wait();
 
@@ -134,7 +135,7 @@ public class SocketsIntegrationTests
     [Test]
     public void ServerReactsWhenClientsAreClosingConnections(
         [Values(1, 2, 40)] int numberOfClients,
-        [Values(250)] int eventsTimeout)
+        [Values(250)] int eventsTimeout)    // Expressed in milliseconds.
     {
         int closedConnections = 0;
         _server.ConnectionClosedEvent += (_) => closedConnections++;
@@ -158,7 +159,7 @@ public class SocketsIntegrationTests
     [Test]
     public void ClientTransfersDataToServer(
         [Values(10)] int dataLength,
-        [Values(250)] int eventsTimeout)
+        [Values(250)] int eventsTimeout)    // Expressed in milliseconds.
     {
         var receivedData = new byte[0];
         _server.DataReceivedEvent += (_, data) => receivedData = data;
@@ -169,8 +170,10 @@ public class SocketsIntegrationTests
         client.ConnectToServer();
         Task.Delay(eventsTimeout).Wait();    // Time required to process ConnectionAcceptedEvent by the server.
 
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var sentData = new byte[dataLength];
-        s_randomNumberGenerator.NextBytes(sentData);
+        randomizer.NextBytes(sentData);
         client.SentData(sentData).Wait();
 
         Assert.That(() => sentData.SequenceEqual(receivedData), Is.True.After(eventsTimeout));
@@ -178,7 +181,7 @@ public class SocketsIntegrationTests
 
     [Test]
     public void ClientReactsWhenServerClosesConnection(
-        [Values(250)] int eventsTimeout)
+        [Values(250)] int eventsTimeout)    // Expressed in milliseconds.
     {
         int connectionIdentifier = 0;
         _server.ConnectionAcceptedEvent += (identifier) => connectionIdentifier = identifier;
@@ -200,7 +203,7 @@ public class SocketsIntegrationTests
 
     [Test]
     public void ClientReactsWhenServerIsBeingDisposed(
-        [Values(250)] int eventsTimeout)
+        [Values(250)] int eventsTimeout)    // Expressed in milliseconds.
     {
         _server.StartAcceptingConnections();
 

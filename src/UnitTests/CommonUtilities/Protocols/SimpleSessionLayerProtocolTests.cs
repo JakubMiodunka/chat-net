@@ -1,4 +1,5 @@
 ﻿using CommonUtilities.Protocols;
+using NUnit.Framework.Internal;
 
 
 namespace UnitTests.CommonUtilities.Protocols;
@@ -16,10 +17,6 @@ public sealed class SimpleSessionLayerProtocolTests
     // Values chosen using 3-value boundary analysis.
     private static readonly int[] s_validPayloadLength = [0, 1, 1019, 1020];
     private static readonly int[] s_invalidPayloadLength = [1021];
-    #endregion
-
-    #region Auxiliary properties
-    private static readonly Random s_randomNumberGenerator = new Random();
     #endregion
 
     #region Test cases
@@ -64,8 +61,10 @@ public sealed class SimpleSessionLayerProtocolTests
     public void PreparingPacketUsingPayloadWithInvalidLengthImpossible(
         [ValueSource(nameof(s_invalidPayloadLength))] int invalidPayloadLength)
     {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var payload = new byte[invalidPayloadLength];
-        s_randomNumberGenerator.NextBytes(payload);
+        randomizer.NextBytes(payload);
 
         var protocol = new SimpleSessionLayerProtocol(DefaultHeaderLength);
         TestDelegate actionUnderTest = () => protocol.PreparePacket(payload);
@@ -77,8 +76,10 @@ public sealed class SimpleSessionLayerProtocolTests
     public void PreparingPacketUsingPayloadWithValidLengthPossible(
         [ValueSource(nameof(s_validPayloadLength))] int validPayloadLength)
     {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var payload = new byte[validPayloadLength];
-        s_randomNumberGenerator.NextBytes(payload);
+        randomizer.NextBytes(payload);
 
         var protocol = new SimpleSessionLayerProtocol(DefaultHeaderLength);
         TestDelegate actionUnderTest = () => protocol.PreparePacket(payload);
@@ -90,8 +91,10 @@ public sealed class SimpleSessionLayerProtocolTests
     public void SumOfPacketHeaderIsEqualToPayloadLength(
         [ValueSource(nameof(s_validPayloadLength))] int validPayloadLength)
     {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var payload = new byte[validPayloadLength];
-        s_randomNumberGenerator.NextBytes(payload);
+        randomizer.NextBytes(payload);
 
         var protocol = new SimpleSessionLayerProtocol(DefaultHeaderLength);
         byte[] packet = protocol.PreparePacket(payload);
@@ -104,8 +107,10 @@ public sealed class SimpleSessionLayerProtocolTests
     public void TransferringPayloadToPacketIsTransparent(
         [ValueSource(nameof(s_validPayloadLength))] int validPayloadLength)
     {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var expectedPayload = new byte[validPayloadLength];
-        s_randomNumberGenerator.NextBytes(expectedPayload);
+        randomizer.NextBytes(expectedPayload);
 
         var protocol = new SimpleSessionLayerProtocol(DefaultHeaderLength);
         byte[] packet = protocol.PreparePacket(expectedPayload);
@@ -146,8 +151,10 @@ public sealed class SimpleSessionLayerProtocolTests
         [Values(0, 1)] int lengthOfUnusedBufferSpace,
         [ValueSource(nameof(s_validPayloadLength))] int validPayloadLength)
     {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var expectedPayload = new byte[validPayloadLength];
-        s_randomNumberGenerator.NextBytes(expectedPayload);
+        randomizer.NextBytes(expectedPayload);
 
         var recivingBuffer = new List<byte>();
 
@@ -156,7 +163,7 @@ public sealed class SimpleSessionLayerProtocolTests
         recivingBuffer.AddRange(packet);
 
         var unusedBufferSpace = new byte[lengthOfUnusedBufferSpace];
-        s_randomNumberGenerator.NextBytes(unusedBufferSpace);
+        randomizer.NextBytes(unusedBufferSpace);
         recivingBuffer.AddRange(unusedBufferSpace);
 
         byte[] actualPayload = protocol.ExtractPayload(packet);

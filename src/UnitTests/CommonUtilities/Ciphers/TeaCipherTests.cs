@@ -3,6 +3,7 @@
 using CommonUtilities.Ciphers;
 using CommonUtilities.Padding;
 using Moq;
+using NUnit.Framework.Internal;
 
 
 namespace UnitTests.CommonUtilities.Ciphers;
@@ -15,10 +16,6 @@ public sealed class TeaCipherTests
     #region Constants
     private const int ValidSizeOfDataBlock = 8;         // TEA operates on 32-bit (8 bytes) data blocks.
     private const int ValidSizeOfEncryptionKey = 16;    // TEA is using 128-bit (16 bytes) encryption key.
-    #endregion
-
-    #region Auxiliary properties
-    private static readonly Random s_randomNumberGenerator = new Random();
     #endregion
 
     #region Auxiliary methods
@@ -57,8 +54,10 @@ public sealed class TeaCipherTests
     public void InstantiationImpossibleUsingInvalidEncryptionKey(
         [Values(15, 17)] int invalidSizeOfEncryptionKey)
     {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var encryptionKey = new byte[invalidSizeOfEncryptionKey];
-        s_randomNumberGenerator.NextBytes(encryptionKey);
+        randomizer.NextBytes(encryptionKey);
 
         Mock<IBitPaddingProvider> bitPaddingProviderStub = CreateTransparentBitPaddingProviderFake();
 
@@ -70,8 +69,10 @@ public sealed class TeaCipherTests
     [Test]
     public void InstantiationImpossibleUsingNullReferenceAsBitPaddingProvider()
     {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var encryptionKey = new byte[ValidSizeOfEncryptionKey];
-        s_randomNumberGenerator.NextBytes(encryptionKey);
+        randomizer.NextBytes(encryptionKey);
 
         TestDelegate actionUnderTest = () => new TeaCipher(encryptionKey, null!);
 
@@ -82,8 +83,10 @@ public sealed class TeaCipherTests
     public void InstantiationImpossibleUsingMisconfiguredBitPaddingProvider(
         [Values(7, 9)] int invalidSizeOfDataBlock)
     {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var encryptionKey = new byte[ValidSizeOfEncryptionKey];
-        s_randomNumberGenerator.NextBytes(encryptionKey);
+        randomizer.NextBytes(encryptionKey);
 
         Mock<IBitPaddingProvider> bitPaddingProviderStub = CreateTransparentBitPaddingProviderFake();
         bitPaddingProviderStub
@@ -98,8 +101,10 @@ public sealed class TeaCipherTests
     [Test]
     public void EncryptionOfNullReferenceNotPossible()
     {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var encryptionKey = new byte[ValidSizeOfEncryptionKey];
-        s_randomNumberGenerator.NextBytes(encryptionKey);
+        randomizer.NextBytes(encryptionKey);
 
         Mock<IBitPaddingProvider> bitPaddingProviderStub = CreateTransparentBitPaddingProviderFake();
 
@@ -113,8 +118,10 @@ public sealed class TeaCipherTests
     [Test]
     public void DecryptionOfNullReferenceNotPossible()
     {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var encryptionKey = new byte[ValidSizeOfEncryptionKey];
-        s_randomNumberGenerator.NextBytes(encryptionKey);
+        randomizer.NextBytes(encryptionKey);
 
         Mock<IBitPaddingProvider> bitPaddingProviderStub = CreateTransparentBitPaddingProviderFake();
 
@@ -129,11 +136,13 @@ public sealed class TeaCipherTests
     public void EncryptionIsTransparent(
         [Values(0, 2, 3, 4, 8, 9, 16, 27)] int numberOfDataBlocksToProcess)
     {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var encryptionKey = new byte[ValidSizeOfEncryptionKey];
-        s_randomNumberGenerator.NextBytes(encryptionKey);
+        randomizer.NextBytes(encryptionKey);
 
         var inputDataSet = new byte[ValidSizeOfDataBlock * numberOfDataBlocksToProcess];
-        s_randomNumberGenerator.NextBytes(inputDataSet);
+        randomizer.NextBytes(inputDataSet);
 
         Mock<IBitPaddingProvider> bitPaddingProviderStub = CreateTransparentBitPaddingProviderFake();
 

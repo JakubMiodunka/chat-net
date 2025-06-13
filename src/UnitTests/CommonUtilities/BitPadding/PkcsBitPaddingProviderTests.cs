@@ -1,6 +1,7 @@
 ﻿// Ignore Spelling: Pkcs
 
 using CommonUtilities.BitPadding;
+using NUnit.Framework.Internal;
 
 
 namespace UnitTests.CommonUtilities.BitPadding;
@@ -12,10 +13,6 @@ public sealed class PkcsBitPaddingProviderTests
 {
     #region Default values
     private const int DefaultDataBlockSize = 8;
-    #endregion
-
-    #region Auxiliary properties
-    private static Random s_randomNumberGenerator = new Random();
     #endregion
 
     #region Test parameters
@@ -61,9 +58,11 @@ public sealed class PkcsBitPaddingProviderTests
         [ValueSource(nameof(s_validSizesOfDataBlock))] int sizeOfDataBlock,
         [ValueSource(nameof(s_validSizesOfInputDataSet))] int sizeOfInputDataSet)
     {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var instanceUnderTest = new PkcsBitPaddingProvider(sizeOfDataBlock);
         var inputDataSet = new byte[sizeOfInputDataSet];
-        s_randomNumberGenerator.NextBytes(inputDataSet);
+        randomizer.NextBytes(inputDataSet);
 
         byte[] paddedDataSet = instanceUnderTest.AddBitPadding(inputDataSet);
 
@@ -85,9 +84,11 @@ public sealed class PkcsBitPaddingProviderTests
         [ValueSource(nameof(s_validSizesOfDataBlock))] int sizeOfDataBlock,
         [ValueSource(nameof(s_validSizesOfInputDataSet))] int sizeOfInputDataSet)
     {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
         var instanceUnderTest = new PkcsBitPaddingProvider(sizeOfDataBlock);
         var inputDataSet = new byte[sizeOfInputDataSet];
-        s_randomNumberGenerator.NextBytes(inputDataSet);
+        randomizer.NextBytes(inputDataSet);
 
         byte[] paddedDataSet = instanceUnderTest.AddBitPadding(inputDataSet);
         byte[] unpaddedDataSet = instanceUnderTest.RemoveBitPadding(paddedDataSet);
