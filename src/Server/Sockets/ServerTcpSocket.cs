@@ -143,7 +143,7 @@ public sealed class ServerTcpSocket : TasksManager
         
         lock(_connectionHandlers)
         {
-            List<TcpConnectionHandler> inactiveHandlers = _connectionHandlers.Where(handler => handler.IsActive).ToList();
+            List<TcpConnectionHandler> inactiveHandlers = _connectionHandlers.Where(handler => !handler.IsActive).ToList();
             inactiveHandlers.ForEach(handler => handler.Dispose());
             inactiveHandlers.ForEach(handler => _connectionHandlers.Remove(handler));
             
