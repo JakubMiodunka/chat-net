@@ -9,9 +9,10 @@ var searchData=
   ['commonutilities_3a_3abitpadding_6',['BitPadding',['../namespace_common_utilities_1_1_bit_padding.html',1,'CommonUtilities']]],
   ['commonutilities_3a_3aciphers_7',['Ciphers',['../namespace_common_utilities_1_1_ciphers.html',1,'CommonUtilities']]],
   ['commonutilities_3a_3amodels_8',['Models',['../namespace_common_utilities_1_1_models.html',1,'CommonUtilities']]],
-  ['commonutilities_3a_3amodels_3a_3arequests_9',['Requests',['../namespace_common_utilities_1_1_models_1_1_requests.html',1,'CommonUtilities::Models']]],
-  ['commonutilities_3a_3apadding_10',['Padding',['../namespace_common_utilities_1_1_padding.html',1,'CommonUtilities']]],
-  ['commonutilities_3a_3aprotocols_11',['Protocols',['../namespace_common_utilities_1_1_protocols.html',1,'CommonUtilities']]],
-  ['commonutilities_3a_3asockets_12',['Sockets',['../namespace_common_utilities_1_1_sockets.html',1,'CommonUtilities']]],
-  ['connecttoserver_13',['ConnectToServer',['../class_client_1_1_sockets_1_1_client_tcp_socket.html#af662b566cb71afe756181abf28d4bc49',1,'Client::Sockets::ClientTcpSocket']]]
+  ['commonutilities_3a_3apadding_9',['Padding',['../namespace_common_utilities_1_1_padding.html',1,'CommonUtilities']]],
+  ['commonutilities_3a_3aprotocols_10',['Protocols',['../namespace_common_utilities_1_1_protocols.html',1,'CommonUtilities']]],
+  ['commonutilities_3a_3arequests_11',['Requests',['../namespace_common_utilities_1_1_requests.html',1,'CommonUtilities']]],
+  ['commonutilities_3a_3arequests_3a_3amodels_12',['Models',['../namespace_common_utilities_1_1_requests_1_1_models.html',1,'CommonUtilities::Requests']]],
+  ['commonutilities_3a_3asockets_13',['Sockets',['../namespace_common_utilities_1_1_sockets.html',1,'CommonUtilities']]],
+  ['connecttoserver_14',['ConnectToServer',['../class_client_1_1_sockets_1_1_client_tcp_socket.html#af662b566cb71afe756181abf28d4bc49',1,'Client::Sockets::ClientTcpSocket']]]
 ];
