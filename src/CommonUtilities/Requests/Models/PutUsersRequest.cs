@@ -3,7 +3,7 @@
 namespace CommonUtilities.Requests.Models;
 
 /// <summary>
-/// Respond containing details about pool of users.
+/// Server respond containing details about pool of users.
 /// </summary>
 /// <param name="Users">
 /// Users, which shall be included in request content.

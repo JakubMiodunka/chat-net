@@ -140,7 +140,7 @@ public sealed class RequestSerializerTests
         // Manual equality check as one of request properties is a collection (is reference-type property).
         Assert.That(actualRequest, Is.Not.Null);
         Assert.That(actualRequest.Type, Is.EqualTo(expectedRequest.Type));
-        Assert.That(actualRequest.UserIds, Is.EquivalentTo(expectedRequest.UserIds));
+        Assert.That(actualRequest.UserIdentifiers, Is.EquivalentTo(expectedRequest.UserIdentifiers));
     }
 
     [Test]

@@ -3,7 +3,7 @@
 namespace CommonUtilities.Requests.Models;
 
 /// <summary>
-/// Respond containing details about pool of messages.
+/// Server respond containing details about pool of messages.
 /// </summary>
 /// <param name="Messages">
 /// Messages, which shall be included in request content.

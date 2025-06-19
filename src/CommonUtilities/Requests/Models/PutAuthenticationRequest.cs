@@ -1,7 +1,7 @@
 ﻿namespace CommonUtilities.Requests.Models;
 
 /// <summary>
-/// Respond containing details about result of authentication attempt.
+/// Server respond containing result of client authentication attempt.
 /// </summary>
 /// <remarks>
 /// Respond to AuthenticateRequest.
