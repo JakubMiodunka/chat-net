@@ -2,31 +2,31 @@
 using CommonUtilities.Models;
 using CommonUtilities.Requests;
 using CommonUtilities.Requests.Models;
-using Server.Sockets;
 
 namespace Server;
 
 // Below class is only a draft
 public sealed class RequestHandler : TasksManager
 {
-    #region Properties
-    private readonly ServerTcpSocket _server;
-    private readonly DatabaseClient _databaseClient;
+    #region Delegates
+    public delegate void SendData(int connectionIdentifier, IEnumerable<byte> data);
+    public delegate void CloseConnection(int connectionIdentifier);
+    #endregion
 
+    #region Events
+    public event SendData? SendDataEvent;           // Invoked, when handler wants to sent some data to specified connection.
+    public event CloseConnection? CloseConnectionEvent; // Invoked, when handler wants to close specified connection.
+    #endregion
+
+    #region Properties
+    private readonly DatabaseClient _databaseClient;
     private readonly Dictionary<int, User> _authenticatedUsers;
     #endregion
 
     #region Instantiation
-    public RequestHandler(ServerTcpSocket server, DatabaseClient databaseClient) : base()
+    public RequestHandler(DatabaseClient databaseClient) : base()
     {
         #region Arguments validation
-        if (server is null)
-        {
-            string argumentName = nameof(server);
-            const string ErrorMessage = "Provided server is a null reference:";
-            throw new ArgumentNullException(argumentName, ErrorMessage);
-        }
-
         if (databaseClient is null)
         {
             string argumentName = nameof(databaseClient);
@@ -35,15 +35,27 @@ public sealed class RequestHandler : TasksManager
         }
         #endregion
 
-        _server = server;
         _databaseClient = databaseClient;
         _authenticatedUsers = new Dictionary<int, User>();
-
-        _server.DataReceivedEvent += HandleReceivedData;
     }
     #endregion
 
-    // Currently password hash is not checked.
+    #region Client requests handling
+    private void SendRequest(int connectionIdentifier, Request request)
+    {
+        #region Arguments validation
+        if (request is null)
+        {
+            string argumentName = nameof(request);
+            const string ErrorMessage = "Provided request is a null reference:";
+            throw new ArgumentNullException(argumentName, ErrorMessage);
+        }
+        #endregion
+
+        byte[] serializedRequest = RequestSerializer.Serialize(request);
+        SendDataEvent?.Invoke(connectionIdentifier, serializedRequest);
+    }
+
     private PutAuthenticationRequest HandleGetAuthenticationRequest(int connectionId, GetAuthenticationRequest request)
     {
         #region Arguments validation
@@ -57,13 +69,15 @@ public sealed class RequestHandler : TasksManager
 
         User user = _databaseClient.GetUser(request.UserId);
 
-        lock(_authenticatedUsers)
+        lock (_authenticatedUsers)
         {
             _authenticatedUsers.Add(connectionId, user);
         }
 
+        // TODO: Add password heck as it is not checked currently.
         return new PutAuthenticationRequest(true);
     }
+    
     private PutMessagesRequest HandleGetMessagesRequest(User requester, GetMessagesRequest request)
     {
         #region Arguments validation
@@ -86,6 +100,7 @@ public sealed class RequestHandler : TasksManager
 
         return new PutMessagesRequest(messages);
     }
+    
     private PutUsersRequest HandleGetUsersRequest(User requester, GetUsersRequest request)
     {
         #region Arguments validation
@@ -110,6 +125,7 @@ public sealed class RequestHandler : TasksManager
 
         return new PutUsersRequest(users);
     }
+    
     private void HandlePutTextMessageRequest(User requester, PutTextMessageRequest request)
     {
         #region Arguments validation
@@ -134,24 +150,33 @@ public sealed class RequestHandler : TasksManager
         _databaseClient.PutMessage(message);
     }
 
-    private async Task HandleReceicvedDataTask(int connectionIdentifier, byte[] receivedData)
+    private void HandleReceicvedData(int connectionIdentifier, IEnumerable<byte> data)
     {
+        #region Arguments validation
+        if (data is null)
+        {
+            string argumentName = nameof(data);
+            const string ErrorMessage = "Provided collection of bytes is a null reference:";
+            throw new ArgumentNullException(argumentName, ErrorMessage);
+        }
+        #endregion
+
         Request request;
 
         try
         {
-            request = RequestSerializer.Deserialize(receivedData);
+            request = RequestSerializer.Deserialize(data);
         }
-        catch(NotSupportedException)
+        catch (NotSupportedException)
         {
-            CloseConnection(connectionIdentifier);
+            CloseConnectionEvent?.Invoke(connectionIdentifier);
             return;
         }
 
         if (request is GetAuthenticationRequest)
         {
             Request resposne = HandleGetAuthenticationRequest(connectionIdentifier, (GetAuthenticationRequest)request);
-            await SentRequest(connectionIdentifier, resposne);
+            SendRequest(connectionIdentifier, resposne);
             return;
         }
 
@@ -165,7 +190,7 @@ public sealed class RequestHandler : TasksManager
             }
             catch (KeyNotFoundException)
             {
-                CloseConnection(connectionIdentifier);
+                CloseConnectionEvent?.Invoke(connectionIdentifier);
                 return;
             }
         }
@@ -173,14 +198,14 @@ public sealed class RequestHandler : TasksManager
         if (request is GetMessagesRequest)
         {
             Request resposne = HandleGetMessagesRequest(requester, (GetMessagesRequest)request);
-            await SentRequest(connectionIdentifier, resposne);
+            SendRequest(connectionIdentifier, resposne);
             return;
         }
 
         if (request is GetUsersRequest)
         {
             Request resposne = HandleGetUsersRequest(requester, (GetUsersRequest)request);
-            await SentRequest(connectionIdentifier, resposne);
+            SendRequest(connectionIdentifier, resposne);
             return;
         }
 
@@ -190,29 +215,26 @@ public sealed class RequestHandler : TasksManager
             return;
         }
 
-        CloseConnection(connectionIdentifier);
-        return;
+        CloseConnectionEvent?.Invoke(connectionIdentifier);
     }
+    #endregion
 
-    private void HandleReceivedData(int connectionIdentifier, byte[] receivedData)
+    // Methods form this region shall be attached to events raised by the server socket.
+    #region Notifications from server site
+    public void DataReceived(int connectionIdentifier, IEnumerable<byte> data)
     {
-        Task task = Task.Run(() => HandleReceicvedDataTask(connectionIdentifier, receivedData));
+        Task task = Task.Run(() => HandleReceicvedData(connectionIdentifier, data));
         AddTask(task);
     }
-
-    private async Task SentRequest(int connectionIdentifier, Request request)
+    
+    // Beware, that if handler raised CloseConnectionEvent it expects confirmation,
+    // that connection was truly closed on server site via this method.
+    public void ConnectionClosed(int connectionIdentifier)
     {
-        byte[] serializedRequest = RequestSerializer.Serialize(request);
-        await _server.SentData(connectionIdentifier, serializedRequest);
-    }
-
-    private void CloseConnection(int connectionIdentifier)
-    {
-        lock(_authenticatedUsers)
+        lock (_authenticatedUsers)
         {
             _authenticatedUsers.Remove(connectionIdentifier);
         }
-
-        _server.CloseConnection(connectionIdentifier);
     }
+    #endregion
 }
