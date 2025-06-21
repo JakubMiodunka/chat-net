@@ -34,7 +34,8 @@ public static class RequestSerializer
             typeof(GetMessagesRequest),
             typeof(PutMessagesRequest),
             typeof(GetUsersRequest),
-            typeof(PutUsersRequest)};
+            typeof(PutUsersRequest),
+            typeof(PutTextMessageRequest)};
 
         var requestTypeToRegexMapping = new Dictionary<Type, Regex>();
 

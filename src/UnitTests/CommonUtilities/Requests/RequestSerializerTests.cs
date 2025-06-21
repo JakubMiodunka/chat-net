@@ -163,5 +163,20 @@ public sealed class RequestSerializerTests
         Assert.That(actualRequest.Type, Is.EqualTo(expectedRequest.Type));
         Assert.That(actualRequest.Users, Is.EquivalentTo(expectedRequest.Users));
     }
+
+    [Test]
+    public void PutTextMessageRequestSerializationIsTransparent()
+    {
+        Randomizer randomizer = TestContext.CurrentContext.Random;
+
+        var expectedRequest = new PutTextMessageRequest(
+            randomizer.Next(),
+            randomizer.GetString());
+
+        byte[] serializedRequest = RequestSerializer.Serialize(expectedRequest);
+        var actualRequest = RequestSerializer.Deserialize(serializedRequest) as PutTextMessageRequest;
+
+        Assert.That(actualRequest, Is.EqualTo(expectedRequest));
+    }
     #endregion
 }
