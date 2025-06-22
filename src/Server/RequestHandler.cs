@@ -1,6 +1,5 @@
 ﻿using CommonUtilities;
 using CommonUtilities.Models;
-using CommonUtilities.Requests;
 using CommonUtilities.Requests.Models;
 
 namespace Server;
@@ -9,12 +8,12 @@ namespace Server;
 public sealed class RequestHandler : TasksManager
 {
     #region Delegates
-    public delegate void SendData(int connectionIdentifier, IEnumerable<byte> data);
+    public delegate void SendRequest(int connectionIdentifier, Request request);
     public delegate void CloseConnection(int connectionIdentifier);
     #endregion
 
     #region Events
-    public event SendData? SendDataEvent;           // Invoked, when handler wants to sent some data to specified connection.
+    public event SendRequest? SendRequestEvent;               // Invoked, when handler wants to sent some data to specified connection.
     public event CloseConnection? CloseConnectionEvent; // Invoked, when handler wants to close specified connection.
     #endregion
 
@@ -41,21 +40,6 @@ public sealed class RequestHandler : TasksManager
     #endregion
 
     #region Client requests handling
-    private void SendRequest(int connectionIdentifier, Request request)
-    {
-        #region Arguments validation
-        if (request is null)
-        {
-            string argumentName = nameof(request);
-            const string ErrorMessage = "Provided request is a null reference:";
-            throw new ArgumentNullException(argumentName, ErrorMessage);
-        }
-        #endregion
-
-        byte[] serializedRequest = RequestSerializer.Serialize(request);
-        SendDataEvent?.Invoke(connectionIdentifier, serializedRequest);
-    }
-
     private PutAuthenticationRequest HandleGetAuthenticationRequest(int connectionId, GetAuthenticationRequest request)
     {
         #region Arguments validation
@@ -144,39 +128,26 @@ public sealed class RequestHandler : TasksManager
         }
         #endregion
 
-        //TODO: Do sortieing more elegant with message ID here.
-        var message = new Message(default, DateTime.Now, requester.Id, request.ReceiverIdentifier, request.MessageContent);
+        var message = new Message(DateTime.Now, requester.Id, request.ReceiverIdentifier, request.MessageContent);
 
         _databaseClient.PutMessage(message);
     }
 
-    private void HandleReceicvedData(int connectionIdentifier, IEnumerable<byte> data)
+    private void HandleRequest(int connectionIdentifier, Request request)
     {
         #region Arguments validation
-        if (data is null)
+        if (request is null)
         {
-            string argumentName = nameof(data);
-            const string ErrorMessage = "Provided collection of bytes is a null reference:";
+            string argumentName = nameof(request);
+            const string ErrorMessage = "Provided request is a null reference:";
             throw new ArgumentNullException(argumentName, ErrorMessage);
         }
         #endregion
 
-        Request request;
-
-        try
-        {
-            request = RequestSerializer.Deserialize(data);
-        }
-        catch (NotSupportedException)
-        {
-            CloseConnectionEvent?.Invoke(connectionIdentifier);
-            return;
-        }
-
         if (request is GetAuthenticationRequest)
         {
             Request resposne = HandleGetAuthenticationRequest(connectionIdentifier, (GetAuthenticationRequest)request);
-            SendRequest(connectionIdentifier, resposne);
+            SendRequestEvent?.Invoke(connectionIdentifier, resposne);
             return;
         }
 
@@ -198,14 +169,14 @@ public sealed class RequestHandler : TasksManager
         if (request is GetMessagesRequest)
         {
             Request resposne = HandleGetMessagesRequest(requester, (GetMessagesRequest)request);
-            SendRequest(connectionIdentifier, resposne);
+            SendRequestEvent?.Invoke(connectionIdentifier, resposne);
             return;
         }
 
         if (request is GetUsersRequest)
         {
             Request resposne = HandleGetUsersRequest(requester, (GetUsersRequest)request);
-            SendRequest(connectionIdentifier, resposne);
+            SendRequestEvent?.Invoke(connectionIdentifier, resposne);
             return;
         }
 
@@ -221,9 +192,9 @@ public sealed class RequestHandler : TasksManager
 
     // Methods form this region shall be attached to events raised by the server socket.
     #region Notifications from server site
-    public void DataReceived(int connectionIdentifier, IEnumerable<byte> data)
+    public void ScheduleRequestHandling(int connectionIdentifier, Request request)
     {
-        Task task = Task.Run(() => HandleReceicvedData(connectionIdentifier, data));
+        Task task = Task.Run(() => HandleRequest(connectionIdentifier, request));
         AddTask(task);
     }
     
