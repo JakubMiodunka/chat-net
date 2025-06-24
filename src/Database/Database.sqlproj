@@ -63,12 +63,12 @@
   <ItemGroup>
     <Build Include="Tables\users.sql" />
     <Build Include="Tables\messages.sql" />
-    <Build Include="StoredProcedures\sp_add_user.sql" />
-    <Build Include="StoredProcedures\sp_add_message.sql" />
+    <Build Include="StoredProcedures\sp_put_user.sql" />
+    <Build Include="StoredProcedures\sp_put_message.sql" />
     <Build Include="StoredProcedures\sp_get_messages_sent_by.sql" />
     <Build Include="StoredProcedures\sp_get_messages_sent_to.sql" />
     <Build Include="StoredProcedures\sp_get_password_hash.sql" />
-    <Build Include="StoredProcedures\sp_get_user.sql" />
+    <Build Include="StoredProcedures\sp_get_users.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Scripts\insert_test_data.sql" />

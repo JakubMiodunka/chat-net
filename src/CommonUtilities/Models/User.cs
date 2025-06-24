@@ -3,10 +3,10 @@
 /// <summary>
 /// Model of application user.
 /// </summary>
-/// <param name="Name">
+/// <param name="Identifier">
 /// Unique user identifier.
 /// </param>
 /// <param name="Name">
 /// Name of a user. Uniqueness is not necessary.
 /// </param>
-public sealed record User(int Id, string Name);
+public sealed record User(int Identifier, string Name);

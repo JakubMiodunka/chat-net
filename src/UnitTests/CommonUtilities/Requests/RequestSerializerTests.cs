@@ -21,10 +21,9 @@ public sealed class RequestSerializerTests
         int contentLength = randomizer.Next(maxMessageContentLength);
 
         return new Message(
-            Id: randomizer.Next(),
             Timestamp: DateTime.FromBinary(randomizer.NextLong(DateTime.MinValue.ToBinary(), DateTime.MaxValue.ToBinary())),
-            SenderId: randomizer.Next(),
-            ReceiverId: randomizer.Next(),
+            SenderIdentifier: randomizer.Next(),
+            ReceiverIdentifier: randomizer.Next(),
             Content: randomizer.GetString(contentLength));
     }
 
@@ -35,7 +34,7 @@ public sealed class RequestSerializerTests
         int userNameLength = randomizer.Next(maxUserNameLength);
 
         return new User(
-            Id: randomizer.Next(),
+            Identifier: randomizer.Next(),
             Name: randomizer.GetString(userNameLength));
     }
     #endregion

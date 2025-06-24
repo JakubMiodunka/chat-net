@@ -1,7 +1,7 @@
 ﻿namespace CommonUtilities.Requests.Models;
 
 /// <summary>
-/// Request used by client to ask server about messages sent to him in specified time frame.
+/// Request used by client to ask server about messages sent to or by him in specified time frame.
 /// </summary>
 /// <param name="StartTimestamp">
 /// Time frame start timestamp.

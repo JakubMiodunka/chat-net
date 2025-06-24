@@ -6,13 +6,13 @@
 /// <param name="Timestamp">
 /// Timestamp indicating when the message was sent.
 /// </param>
-/// <param name="SenderId">
+/// <param name="SenderIdentifier">
 /// Unique identifier of message sender.
 /// </param>
-/// <param name="ReceiverId">
+/// <param name="ReceiverIdentifier">
 /// Unique identifier of message receiver.
 /// </param>
 /// <param name="Content">
 /// Message content.
 /// </param>
-public sealed record Message(DateTime Timestamp, int SenderId, int ReceiverId, string Content);
+public sealed record Message(DateTime Timestamp, int SenderIdentifier, int ReceiverIdentifier, string Content);

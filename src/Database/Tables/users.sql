@@ -1,6 +1,6 @@
 ﻿CREATE TABLE users(
-	id INT IDENTITY(1, 1),
+	identifier INT IDENTITY(1, 1),
 	name varchar(32) NOT NULL,
 	password_hash varchar(32) NOT NULL,
-	CONSTRAINT pk_users PRIMARY KEY(id)
+	CONSTRAINT pk_users PRIMARY KEY(identifier)
 )

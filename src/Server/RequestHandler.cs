@@ -1,6 +1,7 @@
 ﻿using CommonUtilities;
 using CommonUtilities.Models;
 using CommonUtilities.Requests.Models;
+using Server.Repositories;
 
 namespace Server;
 
@@ -42,6 +43,8 @@ public sealed class RequestHandler : TasksManager
     #region Client requests handling
     private PutAuthenticationRequest HandleGetAuthenticationRequest(int connectionId, GetAuthenticationRequest request)
     {
+        throw new NotImplementedException();
+
         #region Arguments validation
         if (request is null)
         {
@@ -51,15 +54,15 @@ public sealed class RequestHandler : TasksManager
         }
         #endregion
 
-        User user = _databaseClient.GetUser(request.UserId);
-
-        lock (_authenticatedUsers)
-        {
-            _authenticatedUsers.Add(connectionId, user);
-        }
-
-        // TODO: Add password heck as it is not checked currently.
-        return new PutAuthenticationRequest(true);
+        // User user = _databaseClient.GetUser(request.UserId);
+        // 
+        // lock (_authenticatedUsers)
+        // {
+        //     _authenticatedUsers.Add(connectionId, user);
+        // }
+        // 
+        // // TODO: Add password heck as it is not checked currently.
+        // return new PutAuthenticationRequest(true);
     }
     
     private PutMessagesRequest HandleGetMessagesRequest(User requester, GetMessagesRequest request)
@@ -80,7 +83,7 @@ public sealed class RequestHandler : TasksManager
         }
         #endregion
 
-        Message[] messages = _databaseClient.GetMessagesSentTo(requester.Id, request.StartTimestamp, request.EndTimestamp);
+        Message[] messages = _databaseClient.GetMessagesSentTo(requester.Identifier, request.StartTimestamp, request.EndTimestamp);
 
         return new PutMessagesRequest(messages);
     }
@@ -103,11 +106,13 @@ public sealed class RequestHandler : TasksManager
         }
         #endregion
 
-        User[] users = request.UserIdentifiers
-            .Select(identifier => _databaseClient.GetUser(identifier))
-            .ToArray();
+        throw new NotImplementedException();
 
-        return new PutUsersRequest(users);
+        // User[] users = request.UserIdentifiers
+        //     .Select(identifier => _databaseClient.GetUser(identifier))
+        //     .ToArray();
+        // 
+        // return new PutUsersRequest(users);
     }
     
     private void HandlePutTextMessageRequest(User requester, PutTextMessageRequest request)
@@ -128,7 +133,7 @@ public sealed class RequestHandler : TasksManager
         }
         #endregion
 
-        var message = new Message(DateTime.Now, requester.Id, request.ReceiverIdentifier, request.MessageContent);
+        var message = new Message(DateTime.Now, requester.Identifier, request.ReceiverIdentifier, request.MessageContent);
 
         _databaseClient.PutMessage(message);
     }
