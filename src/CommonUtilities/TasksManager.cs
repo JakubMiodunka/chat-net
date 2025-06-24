@@ -6,13 +6,13 @@
 public abstract class TasksManager : IDisposable
 {
     #region Properties
-    private readonly List<Task> _tasks;
+    private readonly List<Task> _managedTasks;
     #endregion
 
     #region Instantiation
     protected TasksManager()
     {
-        _tasks = new List<Task>();
+        _managedTasks = new List<Task>();
     }
     #endregion
 
@@ -41,12 +41,12 @@ public abstract class TasksManager : IDisposable
         }
         #endregion
 
-        lock (_tasks)
+        lock (_managedTasks)
         {
-            List<Task> compleatedEventTasks = _tasks.Where(task => task.IsCompleted).ToList();
-            compleatedEventTasks.ForEach(task => _tasks.Remove(task));
+            List<Task> compleatedTasks = _managedTasks.Where(managedTask => managedTask.IsCompleted).ToList();
+            compleatedTasks.ForEach(completedTask => _managedTasks.Remove(completedTask));
 
-            _tasks.Add(task);
+            _managedTasks.Add(task);
         }
     }
 
@@ -55,11 +55,11 @@ public abstract class TasksManager : IDisposable
     /// </summary>
     public virtual void Dispose()
     {
-        Task.WaitAll(_tasks);
+        Task.WaitAll(_managedTasks);
 
-        lock (_tasks)
+        lock (_managedTasks)
         {
-            _tasks.Clear();
+            _managedTasks.Clear();
         }
     }
     #endregion
