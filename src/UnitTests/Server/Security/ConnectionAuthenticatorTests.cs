@@ -9,7 +9,6 @@ using Server.Security;
 
 namespace UnitTests.Server.Security;
 
-// TODO: Maybe some more test cases are needed here?
 [Category("UnitTest")]
 [TestOf(typeof(ConnectionAuthenticator))]
 [Author("Jakub Miodunka")]
@@ -22,7 +21,7 @@ public class ConnectionAuthenticatorTests
     #endregion
 
     #region Auxiliary methods
-    private Mock<IUserRepository> CreateUserRepositoryFakeContainingDefaultUser()
+    private Mock<IUserRepository> CreateDefaultUserRepositoryFake()
     {
         var userRepositoryFake = new Mock<IUserRepository>();
 
@@ -38,6 +37,7 @@ public class ConnectionAuthenticatorTests
     }
     #endregion
 
+    #region Test setup
     [SetUp]
     public void SetUp()
     {
@@ -50,8 +50,8 @@ public class ConnectionAuthenticatorTests
         _defaultPasswordHash = randomizer.GetString();
         _defaultConnetionIdentifier = randomizer.Next();
     }
+    #endregion
 
-    
     [Test]
     public void InstantiationImpossibleUsingNullReferenceAsUserRepository()
     {
@@ -63,7 +63,7 @@ public class ConnectionAuthenticatorTests
     [Test]
     public void AccessIsGrantedIfPasswordHashIsMatching()
     {
-        Mock<IUserRepository> userRepositoryStub = CreateUserRepositoryFakeContainingDefaultUser();
+        Mock<IUserRepository> userRepositoryStub = CreateDefaultUserRepositoryFake();
 
         var connectionAuthenticatorUnderTest = new ConnectionAuthenticator(userRepositoryStub.Object);
 
@@ -73,17 +73,17 @@ public class ConnectionAuthenticatorTests
     }
 
     [Test]
-    public void AccessNotGrantedIfPasswordHashIsNotMatching()
+    public void AccessDeniedIfPasswordHashIsNotMatching()
     {
         Randomizer randomizer = TestContext.CurrentContext.Random;
 
-        Mock<IUserRepository> userRepositoryStub = CreateUserRepositoryFakeContainingDefaultUser();
-        
         string nonMatchingPasswordHash = randomizer.GetString();
         while (nonMatchingPasswordHash == _defaultPasswordHash)
         {
             nonMatchingPasswordHash = randomizer.GetString();
         }
+
+        Mock<IUserRepository> userRepositoryStub = CreateDefaultUserRepositoryFake();
 
         var connectionAuthenticatorUnderTest = new ConnectionAuthenticator(userRepositoryStub.Object);
 
@@ -95,7 +95,7 @@ public class ConnectionAuthenticatorTests
     [Test]
     public void DetailsAboutUserAssociatedWithConnectionAvailableIfConnectionIsAuthenticated()
     {
-        Mock<IUserRepository> userRepositoryStub = CreateUserRepositoryFakeContainingDefaultUser();
+        Mock<IUserRepository> userRepositoryStub = CreateDefaultUserRepositoryFake();
 
         var connectionAuthenticatorUnderTest = new ConnectionAuthenticator(userRepositoryStub.Object);
         connectionAuthenticatorUnderTest.AuthenticateConnection(_defaultConnetionIdentifier, _defaultUser.Identifier, _defaultPasswordHash);
@@ -108,9 +108,11 @@ public class ConnectionAuthenticatorTests
     [Test]
     public void DetailsAboutUserAssociatedWithConnectionNotAvailableIfConnectionIsNotAuthenticated()
     {
-        Mock<IUserRepository> userRepositoryStub = CreateUserRepositoryFakeContainingDefaultUser();
+        Mock<IUserRepository> userRepositoryStub = CreateDefaultUserRepositoryFake();
 
         var connectionAuthenticatorUnderTest = new ConnectionAuthenticator(userRepositoryStub.Object);
+        // Authenticator is operational but no connection is authenticated.
+
         User? uauthenticatedUserDetails = connectionAuthenticatorUnderTest.GetUserAssociatedWithConnection(_defaultConnetionIdentifier);
 
         Assert.That(uauthenticatedUserDetails, Is.Null);
@@ -119,14 +121,14 @@ public class ConnectionAuthenticatorTests
     [Test]
     public void DeauthenticationOfConnectionPossible()
     {
-        Mock<IUserRepository> userRepositoryStub = CreateUserRepositoryFakeContainingDefaultUser();
+        Mock<IUserRepository> userRepositoryStub = CreateDefaultUserRepositoryFake();
 
         var connectionAuthenticatorUnderTest = new ConnectionAuthenticator(userRepositoryStub.Object);
         connectionAuthenticatorUnderTest.AuthenticateConnection(_defaultConnetionIdentifier, _defaultUser.Identifier, _defaultPasswordHash);
 
         connectionAuthenticatorUnderTest.DeauthenticateConnection(_defaultConnetionIdentifier);
-        User? uauthenticatedUserDetails = connectionAuthenticatorUnderTest.GetUserAssociatedWithConnection(_defaultConnetionIdentifier);
+        User? unauthenticatedUserDetails = connectionAuthenticatorUnderTest.GetUserAssociatedWithConnection(_defaultConnetionIdentifier);
 
-        Assert.That(uauthenticatedUserDetails, Is.Null);
+        Assert.That(unauthenticatedUserDetails, Is.Null);
     }
 }

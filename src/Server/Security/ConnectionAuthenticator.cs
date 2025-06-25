@@ -1,9 +1,7 @@
 ﻿// Ignore Spelling: Deauthenticate
 
 using CommonUtilities.Models;
-using Microsoft.SqlServer.Server;
 using Server.Repositories;
-using System.Linq;
 
 
 namespace Server.Security;
@@ -87,7 +85,7 @@ public sealed class ConnectionAuthenticator
         if (isAccessGranted)
         {
             /*
-             * As user repository is responsible for consistency of data held by it, is ti assumed, that if password hash for particular
+             * As user repository is responsible for consistency of data held by it, is is assumed, that if password hash for particular
              * user account is present in repository, other details about him are also present.
              */
             User? userDetails = _userRepository.GetUsers([userIdentifier]).First();
