@@ -1,5 +1,9 @@
-﻿using CommonUtilities.Models;
+﻿// Ignore Spelling: Deauthenticate
+
+using CommonUtilities.Models;
+using Microsoft.SqlServer.Server;
 using Server.Repositories;
+using System.Linq;
 
 
 namespace Server.Security;
@@ -67,34 +71,30 @@ public sealed class ConnectionAuthenticator
     /// </exception>
     public bool AuthenticateConnection(int connectionIdentifier, int userIdentifier, string passwordHash)
     {
-        throw new NotImplementedException();
-        //#region Arguments validation
-        //if (_connectionsToUsersMapping.ContainsKey(connectionIdentifier))
-        //{
-        //    string argumentName = nameof(connectionIdentifier);
-        //    string errorMessage = $"Connection with specified identifier is already authenticated: {connectionIdentifier}";
-        //    throw new ArgumentException(argumentName, errorMessage);
-        //}
-        //#endregion
-        //
-        //string? expectedPasswordHash = _userRepository.GetAccountPasswordHash(userIdentifier);
-        //
-        //bool isAccessGranted = expectedPasswordHash is null ? false : passwordHash == expectedPasswordHash;
-        //
-        //if (isAccessGranted)
-        //{
-        //    User? userDetails = _userRepository.GetUser(userIdentifier);
-        //
-        //    if (userDetails is null)
-        //    {
-        //        string errorMessage = $"Incomplete data related to specified user detected in repository: {userIdentifier}";
-        //        throw new DataMisalignedException(errorMessage);
-        //    }
-        //
-        //    _connectionsToUsersMapping.Add(connectionIdentifier, userDetails);
-        //}
-        //
-        //return isAccessGranted;
+        #region Arguments validation
+        if (_connectionsToUsersMapping.ContainsKey(connectionIdentifier))
+        {
+            string argumentName = nameof(connectionIdentifier);
+            string errorMessage = $"Connection with specified identifier is already authenticated: {connectionIdentifier}";
+            throw new ArgumentException(argumentName, errorMessage);
+        }
+        #endregion
+
+        string? expectedPasswordHash = _userRepository.GetAccountPasswordHash(userIdentifier);
+        
+        bool isAccessGranted = expectedPasswordHash is null ? false : passwordHash == expectedPasswordHash;
+        
+        if (isAccessGranted)
+        {
+            /*
+             * As user repository is responsible for consistency of data held by it, is ti assumed, that if password hash for particular
+             * user account is present in repository, other details about him are also present.
+             */
+            User? userDetails = _userRepository.GetUsers([userIdentifier]).First();
+            _connectionsToUsersMapping.Add(connectionIdentifier, userDetails);
+        }
+        
+        return isAccessGranted;
     }
 
     /// <summary>
@@ -120,12 +120,12 @@ public sealed class ConnectionAuthenticator
     }
 
     /// <summary>
-    /// Specifies connection, which details shall no longer be tracked by authenticator.
+    /// Deauthenticates specified connection.
     /// </summary>
     /// <param name="connectionIdentifier">
-    /// Unique identifier of connection, which details shall no longer be tracked.
+    /// Unique identifier of connection, which shall be deauthenticated.
     /// </param>
-    public void DeleteConnectionDetails(int connectionIdentifier)
+    public void DeauthenticateConnection(int connectionIdentifier)
     {
         _connectionsToUsersMapping.Remove(connectionIdentifier);
     }
