@@ -87,7 +87,7 @@ public sealed class ConnectionAuthenticator : IConnectionAuthenticator
              * As user repository is responsible for consistency of data held by it, is is assumed, that if password hash for particular
              * user account is present in repository, other details about him are also present.
              */
-            User? userDetails = _userRepository.GetUsers([userIdentifier]).First();
+            User? userDetails = _userRepository.GetUserDetails([userIdentifier]).First();
             _connectionsToUsersMapping.Add(connectionIdentifier, userDetails);
         }
         

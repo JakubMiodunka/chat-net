@@ -104,7 +104,7 @@ public sealed class DatabaseClient : IUserRepository, IMessagesRepository
     /// <exception cref="ArgumentNullException">
     /// Thrown, when at least one reference-type argument is a null reference.
     /// </exception>
-    public User[] GetUsers(IEnumerable<int> userIdentifiers)
+    public User[] GetUserDetails(IEnumerable<int> userIdentifiers)
     {
         #region Arguments validation
         if (userIdentifiers is null)

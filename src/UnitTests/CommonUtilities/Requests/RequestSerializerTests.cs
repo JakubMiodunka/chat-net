@@ -63,7 +63,7 @@ public sealed class RequestSerializerTests
         Randomizer randomizer = TestContext.CurrentContext.Random;
 
         var expectedRequest = new GetAuthenticationRequest(
-            UserId: randomizer.Next(),
+            UserIdentifier: randomizer.Next(),
             PasswordHash: randomizer.GetString(passwordHashLength));
 
         byte[] serializedRequest = RequestSerializer.Serialize(expectedRequest);

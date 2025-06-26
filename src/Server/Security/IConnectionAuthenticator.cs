@@ -7,7 +7,7 @@ namespace Server.Security;
 /// Implementation of this interface is able to authenticate incoming connections
 /// and track relations between established connection and users associated with them.
 /// </summary>
-internal interface IConnectionAuthenticator
+public interface IConnectionAuthenticator
 {
     /// <summary>
     /// Authenticates connection and associates it with application user.

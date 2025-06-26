@@ -17,7 +17,7 @@ public interface IUserRepository
     /// <returns>
     /// Details about specified pool of users.
     /// </returns>
-    public User[] GetUsers(IEnumerable<int> userIdentifiers);
+    public User[] GetUserDetails(IEnumerable<int> userIdentifiers);
 
     /// <summary>
     /// Provides hash of password related to account of specified user.
