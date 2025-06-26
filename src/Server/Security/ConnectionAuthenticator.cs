@@ -6,12 +6,11 @@ using Server.Repositories;
 
 namespace Server.Security;
 
-// TODO: Add unit tests.
 /// <summary>
 /// Instance of this class is responsible for authenticating of incoming connections
 /// and tracking relations between established connection and users associated with them.
 /// </summary>
-public sealed class ConnectionAuthenticator
+public sealed class ConnectionAuthenticator : IConnectionAuthenticator
 {
     #region Properties
     // Key: Unique connection identifier, Value: Details about user, who is associated with this connection.
@@ -118,10 +117,10 @@ public sealed class ConnectionAuthenticator
     }
 
     /// <summary>
-    /// Deauthenticates specified connection.
+    /// Makes specified connection no longer authenticated.
     /// </summary>
     /// <param name="connectionIdentifier">
-    /// Unique identifier of connection, which shall be deauthenticated.
+    /// Unique identifier of connection, which authentication shall be discontinued.
     /// </param>
     public void DeauthenticateConnection(int connectionIdentifier)
     {

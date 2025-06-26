@@ -5,6 +5,8 @@ using Server.Sockets;
 using System.Net;
 using System.Text;
 
+// TODO: For now this file contains demo of TcpSocketServer class, but shall be a proper starting point to ChatNet application server.
+
 // Configuration:
 var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8888);
 int receivingBufferSize = 1024;
@@ -37,7 +39,7 @@ void ConnectionClosedEventHandler(int connectionIdentifier)
 using (var tcpServer = new ServerTcpSocket(serverEndPoint, receivingBufferSize, protocol, cipher))
 {
     tcpServer.ConnectionAcceptedEvent += ConnectionAcceptedEventHandler;
-    tcpServer.DataReceivedEvent += (int connectionIdentifier, byte[] receivedData) => DataReceivedEventHandler(tcpServer, connectionIdentifier, receivedData);
+    tcpServer.DataReceivedEvent += (connectionIdentifier, receivedData) => DataReceivedEventHandler(tcpServer, connectionIdentifier, receivedData);
     tcpServer.ConnectionClosedEvent += ConnectionClosedEventHandler;
 
     tcpServer.StartAcceptingConnections();

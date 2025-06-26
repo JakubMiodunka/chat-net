@@ -14,5 +14,7 @@ var searchData=
   ['commonutilities_3a_3arequests_11',['Requests',['../namespace_common_utilities_1_1_requests.html',1,'CommonUtilities']]],
   ['commonutilities_3a_3arequests_3a_3amodels_12',['Models',['../namespace_common_utilities_1_1_requests_1_1_models.html',1,'CommonUtilities::Requests']]],
   ['commonutilities_3a_3asockets_13',['Sockets',['../namespace_common_utilities_1_1_sockets.html',1,'CommonUtilities']]],
-  ['connecttoserver_14',['ConnectToServer',['../class_client_1_1_sockets_1_1_client_tcp_socket.html#af662b566cb71afe756181abf28d4bc49',1,'Client::Sockets::ClientTcpSocket']]]
+  ['connectionauthenticator_14',['ConnectionAuthenticator',['../class_server_1_1_security_1_1_connection_authenticator.html',1,'Server.Security.ConnectionAuthenticator'],['../class_server_1_1_security_1_1_connection_authenticator.html#a12fedc1d7b14565b09e7378b7fdaf04c',1,'Server.Security.ConnectionAuthenticator.ConnectionAuthenticator()']]],
+  ['connectionauthenticatortests_15',['ConnectionAuthenticatorTests',['../class_unit_tests_1_1_server_1_1_security_1_1_connection_authenticator_tests.html',1,'UnitTests.Server.Security.ConnectionAuthenticatorTests'],['../class_unit_tests_1_1_server_1_1_sockets_1_1_connection_authenticator_tests.html',1,'UnitTests.Server.Sockets.ConnectionAuthenticatorTests']]],
+  ['connecttoserver_16',['ConnectToServer',['../class_client_1_1_sockets_1_1_client_tcp_socket.html#af662b566cb71afe756181abf28d4bc49',1,'Client::Sockets::ClientTcpSocket']]]
 ];

@@ -96,16 +96,16 @@ $(function(){ initResizable(false); });
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ae127bd3e90b5bb66d68d33c0a852d578" id="r_ae127bd3e90b5bb66d68d33c0a852d578"><td class="memItemLeft" align="right" valign="top">record&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae127bd3e90b5bb66d68d33c0a852d578">Message</a> (int Id, DateTime Timestamp, int SenderId, int ReceiverId, string Content)</td></tr>
-<tr class="memdesc:ae127bd3e90b5bb66d68d33c0a852d578"><td class="mdescLeft">&#160;</td><td class="mdescRight">Model of a message sent between two application users.  <br /></td></tr>
-<tr class="separator:ae127bd3e90b5bb66d68d33c0a852d578"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a7e981e7848093043798b86cf82bebf" id="r_a0a7e981e7848093043798b86cf82bebf"><td class="memItemLeft" align="right" valign="top">record&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0a7e981e7848093043798b86cf82bebf">User</a> (int Id, string Name)</td></tr>
-<tr class="memdesc:a0a7e981e7848093043798b86cf82bebf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Model of application user.  <br /></td></tr>
-<tr class="separator:a0a7e981e7848093043798b86cf82bebf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf7a945ad5507512b664afaa21af2010" id="r_abf7a945ad5507512b664afaa21af2010"><td class="memItemLeft" align="right" valign="top">record&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abf7a945ad5507512b664afaa21af2010">Message</a> (DateTime Timestamp, int SenderIdentifier, int ReceiverIdentifier, string Content)</td></tr>
+<tr class="memdesc:abf7a945ad5507512b664afaa21af2010"><td class="mdescLeft">&#160;</td><td class="mdescRight">Model of a message sent between two application users.  <br /></td></tr>
+<tr class="separator:abf7a945ad5507512b664afaa21af2010"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d0ade0a749e6a6f699eed29c385cf6c" id="r_a7d0ade0a749e6a6f699eed29c385cf6c"><td class="memItemLeft" align="right" valign="top">record&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7d0ade0a749e6a6f699eed29c385cf6c">User</a> (int Identifier, string Name)</td></tr>
+<tr class="memdesc:a7d0ade0a749e6a6f699eed29c385cf6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Model of application user.  <br /></td></tr>
+<tr class="separator:a7d0ade0a749e6a6f699eed29c385cf6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ae127bd3e90b5bb66d68d33c0a852d578" name="ae127bd3e90b5bb66d68d33c0a852d578"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae127bd3e90b5bb66d68d33c0a852d578">&#9670;&#160;</a></span>Message()</h2>
+<a id="abf7a945ad5507512b664afaa21af2010" name="abf7a945ad5507512b664afaa21af2010"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf7a945ad5507512b664afaa21af2010">&#9670;&#160;</a></span>Message()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -116,22 +116,17 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">record CommonUtilities.Models.Message </td>
           <td>(</td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>Id</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">DateTime</td>          <td class="paramname"><span class="paramname"><em>Timestamp</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>SenderId</em></span>, </td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>SenderIdentifier</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>ReceiverId</em></span>, </td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>ReceiverIdentifier</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -149,10 +144,9 @@ Functions</h2></td></tr>
 <p>Model of a message sent between two application users. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">Id</td><td>Unique message identifier. </td></tr>
     <tr><td class="paramname">Timestamp</td><td>Timestamp indicating when the message was sent. </td></tr>
-    <tr><td class="paramname">SenderId</td><td>Unique identifier of message sender. </td></tr>
-    <tr><td class="paramname">ReceiverId</td><td>Unique identifier of message receiver. </td></tr>
+    <tr><td class="paramname">SenderIdentifier</td><td>Unique identifier of message sender. </td></tr>
+    <tr><td class="paramname">ReceiverIdentifier</td><td>Unique identifier of message receiver. </td></tr>
     <tr><td class="paramname">Content</td><td>Message content. </td></tr>
   </table>
   </dd>
@@ -160,8 +154,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a0a7e981e7848093043798b86cf82bebf" name="a0a7e981e7848093043798b86cf82bebf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0a7e981e7848093043798b86cf82bebf">&#9670;&#160;</a></span>User()</h2>
+<a id="a7d0ade0a749e6a6f699eed29c385cf6c" name="a7d0ade0a749e6a6f699eed29c385cf6c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d0ade0a749e6a6f699eed29c385cf6c">&#9670;&#160;</a></span>User()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -172,7 +166,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">record CommonUtilities.Models.User </td>
           <td>(</td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>Id</em></span>, </td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>Identifier</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -190,7 +184,7 @@ Functions</h2></td></tr>
 <p>Model of application user. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">Name</td><td>Unique user identifier. </td></tr>
+    <tr><td class="paramname">Identifier</td><td>Unique user identifier. </td></tr>
     <tr><td class="paramname">Name</td><td>Name of a user. Uniqueness is not necessary. </td></tr>
   </table>
   </dd>
