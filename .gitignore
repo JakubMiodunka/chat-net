@@ -1,4 +1,5 @@
 # Visual Studio cache directory.
+.vs/
 src/.vs/
 
 # Directories used during application build.
@@ -13,6 +14,8 @@ src/Server/obj/
 
 src/Database/bin/
 src/Database/obj/
+src/Database/Database.dbmdl
+src/Database/Database.jfm
 
 src/UnitTests/bin/
 src/UnitTests/obj/
