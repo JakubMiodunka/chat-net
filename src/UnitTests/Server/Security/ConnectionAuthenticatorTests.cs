@@ -30,7 +30,7 @@ public class ConnectionAuthenticatorTests
             .Returns(_defaultPasswordHash);
 
         userRepositoryFake
-            .Setup(userRepository => userRepository.GetUsers(It.Is<IEnumerable<int>>((collection) => collection.Contains(_defaultUser.Identifier))))
+            .Setup(userRepository => userRepository.GetUserDetails(It.Is<IEnumerable<int>>((collection) => collection.Contains(_defaultUser.Identifier))))
             .Returns([_defaultUser]);
 
         return userRepositoryFake;
@@ -52,6 +52,7 @@ public class ConnectionAuthenticatorTests
     }
     #endregion
 
+    #region Test cases
     [Test]
     public void InstantiationImpossibleUsingNullReferenceAsUserRepository()
     {
@@ -119,6 +120,32 @@ public class ConnectionAuthenticatorTests
     }
 
     [Test]
+    public void DetailsAboutConnectionAssociatedWithUserAvailableIfConnectionIsAuthenticated()
+    {
+        Mock<IUserRepository> userRepositoryStub = CreateDefaultUserRepositoryFake();
+
+        var connectionAuthenticatorUnderTest = new ConnectionAuthenticator(userRepositoryStub.Object);
+        connectionAuthenticatorUnderTest.AuthenticateConnection(_defaultConnetionIdentifier, _defaultUser.Identifier, _defaultPasswordHash);
+
+        int? obtainedConnectionIdentifier = connectionAuthenticatorUnderTest.GetConnectionAssociatedWithUser(_defaultUser.Identifier);
+
+        Assert.That(_defaultConnetionIdentifier, Is.EqualTo(obtainedConnectionIdentifier));
+    }
+
+    [Test]
+    public void DetailsAboutConnectionAssociatedWithUserNotAvailableIfConnectionIsNotAuthenticated()
+    {
+        Mock<IUserRepository> userRepositoryStub = CreateDefaultUserRepositoryFake();
+
+        var connectionAuthenticatorUnderTest = new ConnectionAuthenticator(userRepositoryStub.Object);
+        // Authenticator is operational but no connection is authenticated.
+
+        int? obtainedConnectionIdentifier = connectionAuthenticatorUnderTest.GetConnectionAssociatedWithUser(_defaultUser.Identifier);
+
+        Assert.That(obtainedConnectionIdentifier, Is.Null);
+    }
+
+    [Test]
     public void DeauthenticationOfConnectionPossible()
     {
         Mock<IUserRepository> userRepositoryStub = CreateDefaultUserRepositoryFake();
@@ -131,4 +158,5 @@ public class ConnectionAuthenticatorTests
 
         Assert.That(unauthenticatedUserDetails, Is.Null);
     }
+    #endregion
 }

@@ -39,6 +39,18 @@ public interface IConnectionAuthenticator
     User? GetUserAssociatedWithConnection(int connectionIdentifier);
 
     /// <summary>
+    /// Provides identifier of connection, which is used by already authenticated user.
+    /// </summary>
+    /// <param name="userIdentifier">
+    /// Unique identifier of user, which user details shall be returned.
+    /// </param>
+    /// <returns>
+    /// Identifier of connection, which is used by specified user.
+    /// If specified user is not associated with any connection, null value will be returned.
+    /// </returns>
+    int? GetConnectionAssociatedWithUser(int userIdentifier);
+
+    /// <summary>
     /// Makes specified connection no longer authenticated.
     /// </summary>
     /// <param name="connectionIdentifier">

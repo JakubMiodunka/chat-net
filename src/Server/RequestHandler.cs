@@ -7,7 +7,6 @@ using Server.Security;
 
 namespace Server;
 
-// TODO: Add unit tests.
 /// <summary>
 /// Handler for user requests received on server site.
 /// </summary>
@@ -204,7 +203,7 @@ public sealed class RequestHandler : TasksManager
     }
 
     /// <summary>
-    /// Processes provided request and generates response to it.
+    /// Processes provided request.
     /// </summary>
     /// <param name="requester">
     /// Details about application user, who sent provided request.
@@ -241,6 +240,18 @@ public sealed class RequestHandler : TasksManager
         lock (_messagesRepository)
         {
             _messagesRepository.PutMessage(message);
+        }
+
+        int? receiverConnectionIdentifier = null;
+        lock (_connectionAuthenticator)
+        {
+            receiverConnectionIdentifier = _connectionAuthenticator.GetConnectionAssociatedWithUser(request.ReceiverIdentifier);
+        }
+
+        if (receiverConnectionIdentifier.HasValue)
+        {
+            var updateRequest = new PutMessagesRequest([message]);
+            SendRequestEvent?.Invoke(receiverConnectionIdentifier.Value, updateRequest);
         }
     }
 

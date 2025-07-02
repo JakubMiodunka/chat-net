@@ -117,6 +117,32 @@ public sealed class ConnectionAuthenticator : IConnectionAuthenticator
     }
 
     /// <summary>
+    /// Provides identifier of connection, which is used by already authenticated user.
+    /// </summary>
+    /// <param name="userIdentifier">
+    /// Unique identifier of user, which user details shall be returned.
+    /// </param>
+    /// <returns>
+    /// Identifier of connection, which is used by specified user.
+    /// If specified user is not associated with any connection, null value will be returned.
+    /// </returns>
+    public int? GetConnectionAssociatedWithUser(int userIdentifier)
+    {
+        foreach (KeyValuePair<int, User> mapping in _connectionsToUsersMapping)
+        {
+            int connectionIdentifier = mapping.Key;
+            User user = mapping.Value;
+
+            if (user.Identifier == userIdentifier)
+            {
+                return connectionIdentifier;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// Makes specified connection no longer authenticated.
     /// </summary>
     /// <param name="connectionIdentifier">
